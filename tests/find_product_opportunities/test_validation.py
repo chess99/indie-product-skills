@@ -125,7 +125,65 @@ class ValidateRunTests(unittest.TestCase):
 
         self.assertIn("finalist-signal-diversity", codes)
         self.assertIn("missing-counterevidence-check", codes)
-        self.assertIn("finalist-count", codes)
+        self.assertNotIn("finalist-count", codes)
+
+    def test_accepts_one_or_two_supported_finalists(self) -> None:
+        rows = [evidence("E001", "search-trend"), evidence("E002", "community-pain"), evidence("E003", "commercial-proof")]
+        for count in (1, 2):
+            with self.subTest(count=count), tempfile.TemporaryDirectory() as temp_dir:
+                root = Path(temp_dir)
+                candidates = [finalist(str(i), ["E001", "E002", "E003"], recommended=i == 0) for i in range(count)]
+                self.write_run(root, rows, score_candidates({"decision": "recommendation", "candidates": candidates}), "[E001] [E002] [E003]")
+                self.assertEqual(validate_run(root), [])
+
+    def test_support_gate_excludes_context_counter_low_quality_and_same_origin(self) -> None:
+        for scenario in ("context", "counter", "low", "same-url", "syndicated"):
+            rows = [evidence("E001", "search-trend"), evidence("E002", "community-pain"), evidence("E003", "commercial-proof")]
+            if scenario in ("context", "counter"):
+                rows[2]["direction"] = scenario
+            elif scenario == "low":
+                rows[2]["reliability"] = "low"
+            elif scenario == "same-url":
+                rows[2]["source_url"] = rows[0]["source_url"] + "#section"
+            else:
+                rows[0]["source_group"] = rows[2]["source_group"] = "one-original-study"
+            with self.subTest(scenario=scenario), tempfile.TemporaryDirectory() as temp_dir:
+                root = Path(temp_dir)
+                doc = score_candidates({"decision": "recommendation", "candidates": [finalist("one", ["E001", "E002", "E003"], recommended=True)]})
+                self.write_run(root, rows, doc, "[E001] [E002] [E003]")
+                self.assertIn("finalist-signal-diversity", {i.code for i in validate_run(root)})
+
+    def test_needs_validation_is_distinct_from_recommendation_and_no_go(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            self.write_run(root, [], {"decision": "needs-validation", "candidates": []}, "NEEDS-VALIDATION: source unavailable; test buyer demand next.")
+            self.assertEqual(validate_run(root), [])
+
+    def test_rejects_hidden_recommendations_in_non_finalists(self) -> None:
+        item = finalist("one", [], recommended=True)
+        item["status"] = "pending"
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            self.write_run(root, [], score_candidates({"decision": "needs-validation", "candidates": [item]}), "NEEDS-VALIDATION")
+            codes = {i.code for i in validate_run(root)}
+            self.assertIn("recommendation-status", codes)
+            self.assertIn("no-go-recommendation", codes)
+
+    def test_malformed_evidence_references_produce_issues_without_crashing(self) -> None:
+        for ids in ([{}], None):
+            item = finalist("one", ids, recommended=True)
+            with self.subTest(ids=ids), tempfile.TemporaryDirectory() as temp_dir:
+                root = Path(temp_dir)
+                self.write_run(root, [], score_candidates({"decision": "recommendation", "candidates": [item]}), "Report")
+                self.assertIn("invalid-evidence-references", {i.code for i in validate_run(root)})
+
+    def test_recommendation_requires_at_least_one_and_at_most_three_finalists(self) -> None:
+        for count in (0, 4):
+            with self.subTest(count=count), tempfile.TemporaryDirectory() as temp_dir:
+                root = Path(temp_dir)
+                items = [finalist(str(i), [], recommended=i == 0) for i in range(count)]
+                self.write_run(root, [], score_candidates({"decision": "recommendation", "candidates": items}), "Report")
+                self.assertIn("finalist-count", {i.code for i in validate_run(root)})
 
     def test_accepts_explicit_no_go_without_fabricating_finalists(self) -> None:
         document = {"schema_version": 1, "decision": "no-go", "candidates": []}

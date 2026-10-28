@@ -6,11 +6,12 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import math
 import re
 import sys
 from pathlib import Path
 from typing import Iterable
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlsplit, urlunsplit
 
 SCHEMA_VERSION = 1
 
@@ -141,7 +142,7 @@ def _lookup_value(row: dict[str, str], canonical: str) -> str:
     normalized = {normalize_header(key): (value or "").strip() for key, value in row.items() if key}
     if canonical in normalized:
         return normalized[canonical]
-    for alias in ALIASES.get(canonical, set()):
+    for alias in sorted(ALIASES.get(canonical, set())):
         if alias in normalized:
             return normalized[alias]
     return ""
@@ -166,9 +167,17 @@ def canonicalize_row(
 
 
 def prospect_key(row: dict[str, str]) -> tuple[str, str, str]:
+    def normalize_url(value: str) -> str:
+        value = value.strip()
+        try:
+            parts = urlsplit(value)
+            return urlunsplit((parts.scheme.lower(), parts.netloc.lower(), parts.path or "/", parts.query, ""))
+        except ValueError:
+            return value
+
     return (
-        row.get("source_url", "").strip().lower(),
-        row.get("target_url", "").strip().lower(),
+        normalize_url(row.get("source_url", "")),
+        normalize_url(row.get("target_url", "")),
         row.get("competitor", "").strip().lower(),
     )
 
@@ -235,8 +244,10 @@ def _parse_score(value: str, field: str) -> float:
         score = float(value)
     except ValueError as exc:
         raise LinkOpsError(f"{field} must be a number from 0 to 5: {value!r}") from exc
-    if score < 0 or score > 5:
+    if not math.isfinite(score) or score < 0 or score > 5:
         raise LinkOpsError(f"{field} must be from 0 to 5: {value!r}")
+    if field == "spam_risk" and not score.is_integer():
+        raise LinkOpsError("spam_risk must be an integer from 0 to 5")
     return score
 
 

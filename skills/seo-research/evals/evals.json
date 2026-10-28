@@ -1,0 +1,23 @@
+{
+  "skill_name": "seo-research",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "竞品首页 title 包含 invoice automation。估算它的精确流量，再给我五篇文章。",
+      "expected_output": "公开 title 仅支持主题定位；不编流量，基于意图、已有页和差异价值给适当队列，不强制五个薄页面。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "我只测了一次 AI 回答，引用了我们的教程，但推荐了竞品。这算我们赢了吗？",
+      "expected_output": "分开引用与推荐，记录问题/平台/时间/原文，保留单次样本限制，提出具体后续检查。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "GSC 导出只有 query、clicks、impressions，没有 page 和 difficulty。能先看查询表现吗？",
+      "expected_output": "用已有字段与时间范围进行适当分析；不要求无关 difficulty，不伪造 query-page 关联。",
+      "files": []
+    }
+  ]
+}

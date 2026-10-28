@@ -14,6 +14,11 @@ def candidate(candidate_id: str, score: float, **extra: object) -> dict[str, obj
 
 
 class ScoreCandidatesTests(unittest.TestCase):
+    def test_rejects_duplicate_or_unusable_candidate_ids(self) -> None:
+        for items in ([candidate("same", 2), candidate("same", 4)], [candidate([], 3)], [candidate(" ", 3)]):
+            with self.subTest(items=items), self.assertRaises(ValueError):
+                score_candidates({"candidates": items})
+
     def test_converts_dimension_scores_to_weighted_hundred_point_total(self) -> None:
         document = {
             "schema_version": 1,

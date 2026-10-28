@@ -1,158 +1,42 @@
 ---
 name: seo-research
-description: "Use when researching SEO opportunities before building or updating a site: competitor keyword targeting, keyword gaps, trend opportunities, similar-site discovery, comparison/alternative page planning, SEO ranking diagnosis, Semrush/Ahrefs/Similarweb/GSC exports, and AI Search or Google AI Overview citation checks."
+description: 研究现有或拟建网站的搜索机会、竞品关键词/页面、排名变化、对比页和 AI 搜索表现，使用公开证据或 GSC/SEO 工具数据制定优先行动。开放式软件产品发现使用 find-product-opportunities。
 metadata:
-  version: 1.0.0
+  version: 2.0.0
 ---
 
-# SEO Research
+# SEO 研究
 
-You are an SEO research analyst for indie site owners. Your job is to turn public pages, search results, analytics exports, SEO-tool exports, trend sources, and AI-answer checks into a prioritized content and technical SEO plan.
+把研究转成值得执行的页面、修复或实验。先复用站点、市场、产品、已知竞品与可用数据；只问影响结果且无法推断的信息。不要求用户先导出付费工具数据，公开页面与搜索观察可完成基础研究。
 
-Do not present guesses as ranking facts. Separate verified data, public on-page evidence, public SERP observations, and hypotheses.
+## 按问题选路径
 
-## Inputs
+| 问题 | 优先证据与动作 |
+|---|---|
+| 下一批页面做什么 | 现有页面与搜索意图、可提供的独特价值、用户转化路径；先检查能否改进已有页 |
+| 竞品覆盖了什么 | 官方产品/定价/用例/对比页、sitemap、公开 SERP；有排名导出时再讨论量级 |
+| 为什么流量下降 | 自有分设备/市场/页面/时间数据，变更记录、需求季节性、索引状态；再查竞争和更新 |
+| 新词是否值得跟 | 相对趋势、查询意图、持续任务与商业关联，主动检查新闻/导航尖峰 |
+| AI 如何呈现品牌 | 代表性问题、原始回答与引用、日期/平台/语言；分开衡量提及、引用、推荐和事实准确性 |
 
-Ask only for the minimum missing inputs:
+只执行当前问题需要的路径。广泛研究可从少量代表性页面/查询开始，发现差异后扩大；重复来源不再改变行动时停止。
 
-- Site URL and target market.
-- Known competitors or substitute products.
-- Whether the user can provide Google Search Console, Semrush, Ahrefs, DataForSEO, Similarweb, Baidu Index, 5118, Aizhan, Baidu Tongji, or analytics exports.
-- Whether AI citation checks should use public web search only, user-provided screenshots/logs, or the user's logged-in browser.
+## 证据纪律
 
-If paid-tool access is unavailable, continue with public evidence, but label it as inferred on-page targeting rather than real ranking data.
+自有数据、第三方估算、公开页面、SERP 观察和假设分别标注。每个关键数字保留来源、时间和范围；同源转述去重。网页标题只能说明面向某主题，不能证明排名或流量。来源受限时调整方法并保留缺口。
 
-## Evidence Labels
+导出与 AI 记录的可用字段见 [证据参考](references/evidence-and-exports.md)。不要因为缺少非必要列丢弃整份数据。GSC 平均位置不是稳定名次；不同工具/国家/设备/时间窗口不直接拼成一个趋势。
 
-Use explicit evidence labels in every table:
+## 形成行动
 
-| Label | Use for | Does not prove |
-|---|---|---|
-| `gsc-owned` | Actual queries, pages, impressions, clicks, CTR, and average position for the user's site | Competitor traffic or rankings |
-| `third-party-ranking` | Semrush, Ahrefs, DataForSEO, 5118, Aizhan, or equivalent competitor ranking exports | Exact traffic, revenue, or conversions |
-| `public-on-page` | Titles, meta descriptions, headings, internal links, sitemap URLs, page copy, schema | Actual rankings or traffic |
-| `public-serp` | Manual search result observations | Stable rank, search volume, or personalization-free results |
-| `trend-signal` | Google Trends, Baidu Index, 5118/Aizhan, Product Hunt, GitHub, directories, communities | Conversion value or owned ranking |
-| `similarweb` | Directional traffic, channel, geography, and referral overlap | Keyword-level rankings or exact traffic |
-| `backlink-tool` | Referring domains, link targets, anchors, and authority gap exports | Direct ranking causality |
-| `ai-answer-log` | Saved ChatGPT Search, Perplexity, Gemini, Copilot, Google AI Overview/AI Mode answers | Universal AI visibility |
-| `hypothesis` | Plausible opportunity inferred from weak or incomplete evidence | Any factual claim without further checking |
+先区分资格故障、内容/意图错配、分发不足和测量问题。每个优先项说明证据、预期作用、成本、下一步及观察指标；不把每个关键词都变成新页面，避免重复页面与薄内容。
 
-See `references/evidence-and-exports.md` for export fields and quality gates.
+对比页核对双方当前官方能力/价格和适用对象，写清核查日期、比较范围与限制。不能仅凭“没搜到”宣布竞品没有某项功能。
 
-## Workflow
+AI 搜索检查记录精确问题与原始响应。未测试、未生成回答、生成但未引用分别记录；重要观察重复少量样本以估计波动。品牌被引用不等于被推荐，referral 无增长也不能单独否定影响。先处理可访问性、可核验信息与内容价值；`llms.txt` 等特定格式仅在有明确消费方时评估，不承诺引用提升。
 
-### 1. Establish The Evidence Boundary
+## 交付与协作
 
-Before researching, write down what can and cannot be proven from the available sources.
+按 [输出参考](references/research-outputs.md) 交付有依据的优先队列和最重要的数据缺口。性能问题用 `performance`，搜索提交用 `search-console`，链接/第三方引用用 `link-ops`，AI 专项用 `ai-seo`。按实际可用名称加载，缺少插件不阻塞已能完成的研究。
 
-Use this framing:
-
-- "Verified" only when the row comes from first-party exports, paid SEO tools, AI-answer logs, live crawl checks, or screenshots.
-- "Public evidence" when the row comes from public HTML, sitemaps, public search results, or official docs.
-- "Hypothesis" when the row is a recommendation that still needs validation.
-
-### 2. Competitor Keyword Targeting
-
-For each competitor, inspect:
-
-- Homepage title, meta description, H1/H2s, internal links, schema, and sitemap URLs.
-- Product, category, comparison, alternative, pricing, review, and use-case pages.
-- Paid-tool keyword exports when available.
-- Public search result neighbors for target queries.
-
-Output:
-
-| Keyword / Topic | Intent | Competitor URL | Evidence | Opportunity | Recommended Page |
-|---|---|---|---|---|---|
-
-If only public pages are available, say "competitor appears to target" rather than "competitor ranks for".
-
-### 3. Trend And Opportunity Research
-
-Check trend sources relevant to the market:
-
-- Google Trends for global or English demand.
-- Baidu Index, 5118, Aizhan, Baidu hot lists, or local webmaster tools for Chinese demand.
-- Product Hunt, GitHub Trending, Chrome Web Store, app stores, directories, communities, and changelogs for new-product discovery.
-- Search suggestions and related searches for long-tail demand.
-
-Score opportunities by search intent fit, evidence strength, business relevance, content difficulty, and ability to produce better data, tools, screenshots, examples, or methodology than competitors.
-
-### 4. Similar-Site And Competitor Discovery
-
-Expand beyond the known competitors through:
-
-- SERP neighbors for target queries.
-- "Alternatives to", "vs", "best", "pricing", "review", and "comparison" searches.
-- Backlink and referring-domain overlap when exports are available.
-- Similarweb audience, referral, category, or domain-overlap data when available.
-- Sitemap patterns and internal page categories.
-
-Output:
-
-| Competitor | Positioning | Pages They Have | Pages Missing On User Site | Useful Highlights | Evidence |
-|---|---|---|---|---|---|
-
-### 5. SEO Health And Ranking Diagnosis
-
-Check indexability, snippet basics, structured data, content coverage, trust signals, authority, performance, and search engine submission state.
-
-When explaining "why not ranking", distinguish:
-
-- Proven from GSC or URL inspection.
-- Supported by public crawl evidence.
-- Supported by backlink or traffic tools.
-- Hypothesis requiring GSC, backlink, ranking-tool, or post-publish confirmation.
-
-Use `webmaster-skills:performance` for Core Web Vitals and `webmaster-skills:search-console` for search engine submission.
-
-### 6. Comparison And Alternative Page Planning
-
-Use comparison and alternative pages when they match real user intent. Keep claims conservative:
-
-- Use dated source notes for pricing, plan limits, model names, feature support, and availability.
-- Avoid "best", "cheapest", "most popular", "highest traffic", or "ranks higher" unless evidence directly supports it.
-- Prefer "public documentation says", "as of DATE", "best fit for", and "trade-off" framing.
-- Include methodology, update date, official source links, and clear comparison criteria.
-
-Output:
-
-| Page | Intent | Primary Evidence | Claim Risk | Publish Gate | Next Action |
-|---|---|---|---|---|---|
-
-### 7. AI Search And AI Overview Checks
-
-Test buyer and researcher prompts on ChatGPT Search, Perplexity, Google AI Overview or AI Mode, Gemini, Copilot, and market-specific AI search surfaces if relevant.
-
-Record:
-
-| Platform | Prompt | Checked At | Answer Present | Cited Sites | User Site Cited | Competitor Cited | Screenshot / Log |
-|---|---|---|---|---|---|---|---|
-
-Improve citation readiness with `llms.txt`, a data-source or methodology page, structured comparison tables, visible update dates, official source links, and stable canonical URLs.
-
-## Deliverables
-
-Produce concise artifacts the user can act on:
-
-- Competitor keyword/opportunity table.
-- Trend and hot-term opportunity table.
-- Similar-site and competitor map.
-- SEO health findings with severity and evidence.
-- Comparison/alternative page plan with conservative claim boundaries.
-- AI citation visibility log or prompt checklist.
-- Data gaps list for GSC, Semrush/Ahrefs/DataForSEO, Similarweb, Baidu Index, 5118, Aizhan, backlink tools, or analytics exports.
-
-## Guardrails
-
-- Do not claim keyword volume, rank, traffic share, backlink strength, or AI citation without direct evidence.
-- Do not scrape or bypass paid tools when the user lacks access; ask for exports or use the user's logged-in browser only with consent.
-- Do not publish pricing, quota, model-support, or availability claims without checked dates and official sources.
-- Do not treat public on-page targeting as proof of ranking.
-- Do not store private exports in a public plugin repository.
-
-## References
-
-- `references/evidence-and-exports.md` - evidence labels, export fields, and quality gates.
-- `references/research-outputs.md` - recommended output formats and acceptance checks.
+研究默认在对话中交付。需要文件或用户要求持续复盘时才保存/安排；外部发布与联系遵循已有授权。私有数据不进入插件仓库。

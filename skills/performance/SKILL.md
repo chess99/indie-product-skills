@@ -1,112 +1,38 @@
 ---
 name: performance
-description: "When the user wants to diagnose or fix website performance issues. Use when the user mentions 'slow website,' 'LCP,' 'CLS,' 'INP,' 'Core Web Vitals,' 'CWV,' 'PageSpeed score,' 'web vitals,' 'performance optimization,' 'my site is slow,' 'Google says my page is slow,' 'improve page speed,' 'Time to First Byte,' 'TTFB,' or 'Largest Contentful Paint.' Start with a PageSpeed Insights diagnosis before recommending fixes — don't give generic advice without data. For broader SEO issues, see marketing-skills:seo-audit."
+description: 诊断和修复网站速度、Core Web Vitals、LCP、CLS、INP、TTFB 或 PageSpeed 问题。适用于性能排查和验证改动；完整 SEO 审计使用 seo-audit。
 metadata:
-  version: 1.0.0
+  version: 2.0.0
 ---
 
-# Web Performance Optimization
+# 网站性能
 
-You are an expert in web performance and Core Web Vitals. Your goal is to diagnose real performance issues and provide targeted, data-driven fixes — not generic checklists.
+目标是改善真实用户的访问和交互体验。先取得与症状匹配的测量，再定位原因、修改并复测。读取已有 URL、报告和项目上下文；仅在无法确定目标页面时提问。
 
-## Step 1: Diagnose with PageSpeed Insights
+## 选择测量
 
-Before giving any recommendations, run a real diagnostic. Ask the user for their URL if not provided, then run:
+- **有线上数据**：优先 CrUX、Search Console 或站点 RUM，记录页面或 origin、设备、采样窗口和 p75。URL 数据不足时可参考 origin，但不能把整站结果归给某一页。
+- **排查加载**：用 PageSpeed Insights、Lighthouse 或浏览器性能记录复现。记录环境、时间、LCP 元素及网络/主线程瓶颈。
+- **排查交互**：复现实际点击、输入、展开、切换等操作，查看事件处理、长任务和渲染。普通 Lighthouse 导航测试的 TBT 只能提供阻塞线索，不能当成 INP。
+- **接口失败或无线上样本**：使用已有报告、可用浏览器或本地诊断继续。缺少测量时给出明确的代码风险和验证方法，保留不确定性；不要虚构分数，也不要让 PSI 成为硬依赖。
 
-```bash
-curl -s "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=URL_HERE&strategy=mobile" | python3 -m json.tool | grep -E '"id"|"score"|"displayValue"' | head -40
-```
+PSI API 的真实用户数据字段可能缺失或变更；需要 field data 时直接使用可用的 CrUX/RUM。解析完整 JSON 中的明确字段，先检查 HTTP 错误与 `runtimeError`，不从截断文本或任意 `score` 字段推断性能。
 
-If `python3` is not available:
-```bash
-curl -s "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=URL_HERE&strategy=mobile" > psi-result.json
-```
+## 定位与修改
 
-Then read `psi-result.json` and extract:
-- `lighthouseResult.categories.performance.score` (0-1, multiply by 100)
-- `lighthouseResult.audits.largest-contentful-paint.displayValue`
-- `lighthouseResult.audits.cumulative-layout-shift.displayValue`
-- `lighthouseResult.audits.interaction-to-next-paint.displayValue`
-- `lighthouseResult.audits.total-blocking-time.displayValue`
-- `lighthouseResult.audits.speed-index.displayValue`
+以受影响用户、关键路径和证据强度排序。常用良好阈值为 p75 LCP ≤ 2.5 s、INP ≤ 200 ms、CLS ≤ 0.1；Lighthouse 分数仅作同环境诊断参考。
 
-Also run desktop:
-```bash
-curl -s "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=URL_HERE&strategy=desktop" | grep '"score"' | head -5
-```
+| 症状 | 优先检查 |
+|---|---|
+| LCP 慢 | TTFB、资源发现时间、下载时间、渲染延迟；确定实际 LCP 元素 |
+| CLS 高 | 位移来源、图片/广告占位、动态插入、字体度量变化 |
+| INP 慢 | 输入延迟、处理时长、呈现延迟；复现具体交互 |
+| TTFB 慢 | 缓存命中、重定向、后端查询、网络位置 |
 
-## Step 2: Triage by Impact
+具体改法按需读取 [优化参考](references/cwv-optimization.md)。不要为了分数关闭必要功能、同意管理或转化测量。首屏 LCP 图片避免 lazy loading；仅对确认的关键资源提高优先级；长期 immutable 缓存只用于内容寻址/带版本的静态文件。
 
-Based on the actual scores, focus on whichever metric is worst:
+## 验证与交付
 
-**LCP > 2.5s** → Look at: render-blocking resources, unoptimized images, slow server response, no preload on hero image
-**CLS > 0.1** → Look at: images/embeds without explicit width/height, late-loading content pushing layout, web fonts causing FOUT
-**INP > 200ms** → Look at: heavy JavaScript on main thread, large event handlers, third-party scripts
-**TBT > 300ms** → Look at: long tasks, synchronous third-party scripts, large JavaScript bundles
+用相同页面、设备和测量方式比较前后；结果接近噪声范围时重复少量测量。回归关键交互、布局和统计事件。部署后的真实用户窗口需要重新积累，不能用一次实验室改善宣称线上 CWV 已通过。
 
-## Step 3: Targeted Fixes
-
-Only recommend fixes for issues that actually showed up in the diagnostic. Reference `references/cwv-optimization.md` for implementation details.
-
-### Font Loading (common LCP cause)
-
-```html
-<!-- Before: blocking -->
-<link href="https://fonts.googleapis.com/css2?family=..." rel="stylesheet">
-
-<!-- After: async with preload -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=..." as="style"
-      onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=..." rel="stylesheet"></noscript>
-```
-
-### Third-Party Script Delay (common TBT/LCP cause)
-
-For analytics scripts (GA, Clarity, etc.) that don't need to run before first interaction:
-
-```html
-<script>
-function loadScript(src) {
-  var s = document.createElement('script');
-  s.src = src; s.async = true;
-  document.head.appendChild(s);
-}
-['click','scroll','keydown','touchstart'].forEach(function(e) {
-  window.addEventListener(e, function() { loadScript('YOUR_SCRIPT_URL'); }, {once:true,passive:true});
-});
-</script>
-```
-
-### Image Optimization (common LCP + CLS cause)
-
-```html
-<!-- Hero image: preload + fetchpriority -->
-<link rel="preload" as="image" href="/hero.webp" fetchpriority="high">
-
-<!-- Always declare width + height to prevent CLS -->
-<img src="image.webp" width="800" height="600" loading="lazy" decoding="async" alt="...">
-```
-
-Convert to WebP/AVIF if served as JPEG/PNG. Most static site build tools do this automatically.
-
-### Server Response Time (TTFB > 600ms)
-
-- Switch to a CDN-edge deployment (Cloudflare Pages, Vercel, Netlify) if on origin-only hosting
-- Enable HTTP/2
-- Add `Cache-Control: public, max-age=31536000, immutable` to static assets
-
-## Step 4: Verify Fix
-
-After implementing, re-run PageSpeed:
-```bash
-curl -s "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=URL_HERE&strategy=mobile" \
-  | python3 -m json.tool \
-  | grep -E '"interaction-to-next-paint|largest-contentful-paint|cumulative-layout-shift"' -A 3
-```
-
-## Related Skills
-
-- `marketing-skills:seo-audit` — full SEO audit including CWV check
-- `webmaster-skills:post-launch` — full post-launch workflow
+交付主要瓶颈及证据、已修改内容、同条件结果、仍需验证的问题。未经执行的测量写“未测”。不承诺固定分数或排名提升。

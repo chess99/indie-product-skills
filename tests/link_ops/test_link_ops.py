@@ -16,6 +16,21 @@ SPEC.loader.exec_module(link_ops)
 
 
 class LinkOpsTests(unittest.TestCase):
+    def test_url_identity_preserves_case_sensitive_paths_and_queries(self) -> None:
+        base = {"source_url": "HTTPS://EXAMPLE.COM/Tool?q=Yes#section", "target_url": "https://target.test/", "competitor": "TARGET.TEST"}
+        same = {**base, "source_url": "https://example.com/Tool?q=Yes#other"}
+        different_path = {**base, "source_url": "https://example.com/tool?q=Yes"}
+        different_query = {**base, "source_url": "https://example.com/Tool?q=yes"}
+        self.assertEqual(link_ops.prospect_key(base), link_ops.prospect_key(same))
+        self.assertNotEqual(link_ops.prospect_key(base), link_ops.prospect_key(different_path))
+        self.assertNotEqual(link_ops.prospect_key(base), link_ops.prospect_key(different_query))
+
+    def test_rejects_non_finite_scores_and_fractional_risk(self) -> None:
+        for field, value in (("topic_relevance", "NaN"), ("topic_relevance", "inf"), ("spam_risk", "NaN"), ("spam_risk", "3.5")):
+            row = {**link_ops.blank_row(link_ops.PROSPECT_FIELDS), **{key: "4" for key in link_ops.SCORE_WEIGHTS}, "spam_risk": "1", field: value}
+            with self.subTest(field=field, value=value), self.assertRaises(link_ops.LinkOpsError):
+                link_ops.score_row(row)
+
     def test_cli_help_lists_core_commands(self) -> None:
         result = subprocess.run(
             [sys.executable, str(SCRIPT), "--help"],

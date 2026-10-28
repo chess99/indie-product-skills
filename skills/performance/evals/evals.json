@@ -1,0 +1,23 @@
+{
+  "skill_name": "performance",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "给这份性能结果定改进计划：移动端 Lighthouse TBT=120ms，LCP=2.1s，CLS=0.02；没有 CrUX 数据。客户说打开筛选器很卡。",
+      "expected_output": "不能由 TBT 宣称 INP 通过；复现筛选交互并定位输入/处理/绘制延迟，标记真实用户数据缺失。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "PSI 配额用尽了，手里有浏览器 trace 和项目代码，帮我继续修复首屏图片加载慢。",
+      "expected_output": "利用已有 trace 和代码继续诊断；确认 LCP 元素后处理具体瓶颈，不反复请求 PSI 或给首屏图片加 lazy loading。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "为了跑到 100 分，能把 analytics 全部等到第一次点击才加载吗？",
+      "expected_output": "说明漏计未交互访客风险；根据同意要求与测量目标选择时机，核对事件去重，不默认牺牲测量换分数。",
+      "files": []
+    }
+  ]
+}

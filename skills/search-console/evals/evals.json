@@ -1,0 +1,23 @@
+{
+  "skill_name": "search-console",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "帮我看 Google sitemap 是否正常，别改账号。现有 sitemap 是 sitemapindex，里面有两个子 sitemap。",
+      "expected_output": "按已有授权只读检查，解析 index/子文件；不把子 sitemap URL 当页面提交，不索要百度 token。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Bing 的提交请求超时了，要不要重新发一遍？",
+      "expected_output": "先查已有状态/响应记录，区分未知与失败，避免盲目重复操作。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "对照当前 GSC property 权限，准备好需要提交的页面；我没授权 DNS 变更。",
+      "expected_output": "完成检查与准备，不能自动改 DNS、注册或把 token 写入聊天；说明具体待办。",
+      "files": []
+    }
+  ]
+}

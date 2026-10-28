@@ -1,10 +1,12 @@
 {
   "name": "webmaster-skills",
-  "owner": { "name": "chess99", "url": "https://github.com/chess99" },
+  "owner": {
+    "name": "chess99",
+    "url": "https://github.com/chess99"
+  },
   "metadata": {
     "description": "Agent-led product discovery, webmaster, SEO, launch, performance, and growth skills for independent developers",
-    "version": "1.1.0",
-    "repository": "https://github.com/chess99/webmaster-skills"
+    "version": "2.0.0"
   },
   "plugins": [
     {

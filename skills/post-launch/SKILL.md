@@ -1,108 +1,36 @@
 ---
 name: post-launch
-description: "Full post-launch workflow for new websites. Use when the user says 'my site just launched,' 'new site is live,' 'what do I do after launch,' 'post-launch checklist,' 'just deployed,' 'site is online now,' or 'what should I do after going live.' This skill orchestrates the complete sequence: file validation, structured data, AI SEO, performance, search engine submission, and analytics. Requires marketing-skills to be installed for steps 2, 3, and 6."
+description: 新站或新版本上线后的检查与修复，覆盖关键访问/转化、抓取索引、测量和性能；按风险与目标市场选择检查项。单一性能或搜索提交问题使用对应技能。
 metadata:
-  version: 1.0.0
+  version: 2.0.0
 ---
 
-# Post-Launch Workflow
+# 上线检查
 
-You are a webmaster assistant. Your goal is to guide the user through the complete post-launch optimization sequence for a new website, step by step.
+目标是让目标用户能顺利使用网站，并让站长看见真实结果。复用对话、项目和已有检查记录中的 URL、市场、主要转化动作及部署状态。只有这些信息无法推断且影响操作时提问。
 
-## Prerequisites
+本插件已包含营销技能；无需先安装另一个 marketing-skills 插件。按本环境实际提供的名称查找技能，只有专项工作需要时才加载；缺少技能时仍完成可做的检查。
 
-This skill calls other skills. Confirm the user has both installed:
-- `marketing-skills` (for schema, ai-seo, analytics steps)
-- `webmaster-skills` (this plugin, for performance and search-console steps)
+## 按风险推进
 
-If marketing-skills is not installed, tell the user:
-```
-/plugin install coreyhaines31/marketingskills
-```
+1. **关键路径**：检查首页及代表性产品/落地页的 GET 响应、HTTPS、移动端、导航、注册/联系/购买路径。交易或发信测试使用已有测试环境或明确授权的范围；没有条件时标记未测。
+2. **抓取和内容**：核对真实响应正文、重定向、canonical、noindex/X-Robots-Tag、robots 规则、可见主内容和内部链接。sitemap 应包含可索引 canonical URL；适用时检查多语言关系。细节见 [检查清单](references/checklist.md)。
+3. **测量**：优先复用现有统计，验证主要转化事件确实触发一次、参数正确且尊重同意状态。需要时使用 `analytics`；归因问题使用 `attribution`。地域本身不足以决定再装一个统计服务。
+4. **专项问题**：性能瓶颈调用 `performance`；站点验证或 sitemap 提交调用 `search-console`；有适用实体和可见内容时调用 `schema`；用户关注 AI 搜索时调用 `ai-seo`。
 
-## Step 1: Validate Essential Files
+先修阻断访问、转化或索引的故障，再处理有测量依据的改进。各检查项可独立推进；账号不可用只阻塞该项。
 
-Ask for the site URL, then check these files exist and have correct Content-Type headers:
+## 判断边界
 
-```bash
-# Check each file — expect HTTP 200 and correct Content-Type
-curl -sI URL/robots.txt | grep -E "HTTP|content-type"
-curl -sI URL/sitemap.xml | grep -E "HTTP|content-type"
-curl -sI URL/llms.txt | grep -E "HTTP|content-type"
-```
+- robots.txt 缺失通常不等于禁止抓取；区分 404 与服务器错误。存在规则时检查其实际作用。
+- sitemap 按规模和发现需求使用；仅有 200 或 MIME 正确不足以证明内容有效。
+- `llms.txt` 是特定消费场景下的可选资源，缺失不阻塞上线或 Google AI 搜索资格。
+- 结构化数据要匹配真实实体和可见内容，并核对搜索引擎当前支持；不统一要求所有站添加 Organization/FAQPage。
+- Lighthouse 90 分、所有搜索引擎都提交、额外安装 analytics 均不作为通用完成标准。
+- 当前请求已授权的修复和提交直接推进；尚未授权的发布、注册、付费、对外联系在结果准备好后单独确认。
 
-**robots.txt** must return `content-type: text/plain`
-**sitemap.xml** must return `content-type: application/xml`
-**llms.txt** must return `content-type: text/plain`
+## 完成记录
 
-If any file is missing or has wrong Content-Type, fix it before proceeding. See `references/checklist.md` for correct file contents and Cloudflare Pages `_headers` config.
+按“已验证 / 已修复并复测 / 待外部条件 / 不适用”交付结果，附主要证据与下一步。提交成功、被抓取、被索引和获得流量是不同状态。
 
-## Step 2: Structured Data
-
-Run:
-```
-marketing-skills:schema
-```
-
-Goal: Add at minimum WebSite + Organization JSON-LD on the homepage. Add page-specific schema (FAQPage, Product, BreadcrumbList) where applicable.
-
-## Step 3: AI Search Optimization
-
-Run:
-```
-marketing-skills:ai-seo
-```
-
-Goal: Create or improve `llms.txt`, ensure content is structured for AI citation, add appropriate meta tags.
-
-## Step 4: Performance
-
-Run:
-```
-webmaster-skills:performance
-```
-
-Goal: Score ≥ 90 on PageSpeed Insights mobile. Fix any LCP > 2.5s, CLS > 0.1, or INP > 200ms issues.
-
-## Step 5: Search Engine Submission
-
-Run:
-```
-webmaster-skills:search-console
-```
-
-Goal: Site verified and sitemap submitted to Google Search Console, Baidu, and Bing.
-
-## Step 6: Analytics
-
-Run:
-```
-marketing-skills:analytics
-```
-
-Then add Baidu Analytics if targeting Chinese users:
-1. Register at [tongji.baidu.com](https://tongji.baidu.com)
-2. Add site → copy the tracking JS snippet
-3. Paste before `</head>` in your HTML template
-4. Verify: visit your site, check Baidu Analytics real-time report
-
-## Completion Check
-
-After all steps, run a final validation:
-
-```bash
-# Re-check files
-curl -sI URL/robots.txt | grep -E "HTTP|content-type"
-curl -sI URL/sitemap.xml | grep -E "HTTP|content-type"
-
-# Quick PageSpeed check
-curl -s "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=URL&strategy=mobile" | grep '"score"' | head -3
-```
-
-Then check Google Search Console for any crawl errors 24-48 hours after submission.
-
-## Related Skills
-
-- `webmaster-skills:performance` — deep CWV diagnosis
-- `webmaster-skills:search-console` — search engine submission detail
-- `marketing-skills:seo-audit` — ongoing SEO health checks
+需要后续观察时给出合适的观察窗口与指标；只有用户要求持续检查时才设置自动化。新站等待索引或 field data 不构成本次检查失败。

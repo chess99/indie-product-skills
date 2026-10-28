@@ -1,127 +1,36 @@
 ---
 name: search-console
-description: "Submit a website to search engines and manage search engine verification. Use when the user mentions 'Google Search Console,' 'GSC,' 'Baidu webmaster,' 'Baidu submission,' 'Baidu active push,' 'submit sitemap,' 'search engine submission,' 'index my site,' 'get indexed,' 'Bing Webmaster,' 'site verification,' 'sitemap not submitted,' 'how do I submit my site to Google,' 'how do I submit to Baidu,' 'Baidu indexing,' or 'not showing up in Baidu.' For ongoing SEO auditing after submission, see marketing-skills:seo-audit."
+description: 验证站点所有权、提交 sitemap、检查 Google Search Console、Bing 或百度的抓取索引状态，处理 IndexNow 与搜索提交问题。根据目标市场和现有账号选择引擎。
 metadata:
-  version: 1.0.0
+  version: 2.0.0
 ---
 
-# Search Engine Submission
+# 搜索引擎提交与索引诊断
 
-You are a webmaster assistant. Your goal is to get the user's site verified and sitemap submitted to all major search engines, and run Baidu active push automatically.
+复用已知站点、市场、账号连接和授权。先查看已有 property、验证方式、sitemap 和状态，避免重复创建或重复提交。使用可用连接器或授权浏览器完成工作；仅对登录、验证码或无法取得的权限请求用户介入。
 
-## What You Need First
+## 提交前
 
-Ask for:
-1. Site URL (e.g., `https://example.com`)
-2. Baidu push token (you'll guide them to get it below)
+- 确定需覆盖的域名、协议和子域。Google Domain property 使用 DNS 验证；URL-prefix 适合限定前缀或无 DNS 权限的情况，复用有效验证。
+- 对 sitemap 发出 GET，确认是可解析 XML，识别 `urlset` 与 `sitemapindex`。按命名空间解析，遍历有界的子 sitemap；子 sitemap 地址不能当页面 URL 推送。
+- 检查目标 URL 所属站点、canonical、访问状态、索引指令和必要的内部链接。去重但保留路径与查询参数大小写。
+- 凭据使用连接器或本地受保护配置；不要求把 token 粘贴到聊天、写入报告、命令历史或公开仓库。
 
-## Google Search Console
+## 选择引擎与动作
 
-### 1. Add Property
+| 需要 | 动作 |
+|---|---|
+| Google | 验证适当 property，提交有效 sitemap，必要时检查重点 URL |
+| Bing | 复用账号与 property；适合时使用既有 Google 验证导入；提交 sitemap |
+| IndexNow | 仅对支持的引擎与真实新增/更新/删除 URL 通知，验证 host/key/keyLocation |
+| 百度 | 用户面向该搜索市场或明确指定时处理；核对当前账号权限、接口和剩余配额 |
 
-Direct the user to: https://search.google.com/search-console/
+具体平台步骤、权限和回退见 [引擎参考](references/submit-engines.md)。配额和功能从当前接口/官方文档读取，不写死每日请求数。不把普通网页提交到仅支持特定内容类型的 Google Indexing API。
 
-Steps:
-1. Click "Add property" → choose "URL prefix"
-2. Enter `https://YOURDOMAIN`
-3. Download the HTML verification file (e.g., `google1234abcd.html`)
-4. Upload it to the site root so it's accessible at `https://YOURDOMAIN/google1234abcd.html`
-5. Verify the file is accessible:
-```bash
-curl -sI https://YOURDOMAIN/google1234abcd.html | grep HTTP
-```
-Expected: `HTTP/2 200`
-6. Click "Verify" in Search Console
+提交、验证文件或 DNS 修改均在用户已授权的目标范围内进行；单纯要求“检查索引”不授权新增账户或更改 DNS。完成可读检查与待提交内容后，再处理尚缺的授权。响应不明时先查状态，再决定重试。
 
-### 2. Submit Sitemap
+## 验证与交付
 
-In Search Console: Sitemaps → enter `sitemap.xml` → Submit
+以平台响应区分“已接收 / sitemap 已处理 / 已抓取 / 已索引 / 待处理 / 失败”。GSC URL Inspection API 查看索引状态，不能代替 UI 的请求索引功能。`site:` 搜索只作辅助观察，不能给出准确索引数量。
 
-Verify the sitemap URL first:
-```bash
-curl -sI https://YOURDOMAIN/sitemap.xml | grep -E "HTTP|content-type"
-```
-Expected: `HTTP/2 200` and `content-type: application/xml`
-
-### 3. Request Indexing for Key Pages
-
-For each important page (homepage, main landing pages):
-1. Paste the URL into the Search Console URL inspection tool
-2. Click "Request indexing"
-
-Limit: ~10 requests per day. Use only for the most important pages.
-
-## Baidu Active Push
-
-This step can be run entirely by the AI — no browser needed after getting the token.
-
-### Get Your Token
-
-Direct user to: https://ziyuan.baidu.com/linksubmit/index
-
-Path: 用户中心 → 站点管理 → add site → 数据引入 → 链接提交 → 主动推送
-
-The token appears in the API endpoint URL shown on that page:
-`https://data.zz.baidu.com/urls?site=https://YOURDOMAIN&token=YOUR_TOKEN`
-
-Copy only the token value.
-
-### Run the Push
-
-Once the user provides DOMAIN and TOKEN, run:
-
-```bash
-# Fetch sitemap and extract all URLs
-curl -s https://YOURDOMAIN/sitemap.xml | grep -oP '(?<=<loc>)[^<]+' > /tmp/baidu-urls.txt
-
-# Show count before pushing
-echo "URLs to push: $(wc -l < /tmp/baidu-urls.txt)"
-
-# Push to Baidu (max 2000 per request, 10000/day quota)
-curl -s -H 'Content-Type:text/plain' \
-  --data-binary @/tmp/baidu-urls.txt \
-  "https://data.zz.baidu.com/urls?site=https://YOURDOMAIN&token=YOUR_TOKEN"
-```
-
-Expected response:
-```json
-{"remain":9900,"success":100}
-```
-
-`success` = URLs accepted this call. `remain` = daily quota remaining.
-
-If `success` is 0, check that the DOMAIN in the API URL exactly matches the domain registered in Baidu Webmaster Tools.
-
-## Bing Webmaster Tools
-
-1. Go to https://www.bing.com/webmasters/
-2. Sign in with Microsoft account
-3. Add site → enter URL
-4. Sitemaps → Submit sitemap → enter `https://YOURDOMAIN/sitemap.xml`
-
-Bing also supports IndexNow for faster indexing. If using a static site generator, check for an IndexNow plugin.
-
-## Verify Indexing (After 24-48 Hours)
-
-Check Google:
-```bash
-# In your browser, search:
-# site:YOURDOMAIN
-```
-
-In Google Search Console:
-- Coverage report → Indexed pages count
-- Sitemaps → Status should show "Success"
-
-Check Baidu:
-```bash
-# In your browser on baidu.com, search:
-# site:YOURDOMAIN
-```
-
-## Related Skills
-
-- `webmaster-skills:post-launch` — full post-launch workflow
-- `marketing-skills:seo-audit` — audit after indexing
-
-For detailed API error responses, IndexNow setup, and Baidu crawl diagnostics, see `references/submit-engines.md`.
+交付平台、property、提交对象、时间、响应及尚未解决的问题。索引速度和结果由引擎决定；不承诺 24–48 小时收录，也不为等待收录重复推送全站。

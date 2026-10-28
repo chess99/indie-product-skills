@@ -1,69 +1,26 @@
-# SEO Research Outputs
+# 研究输出
 
-Use these formats to keep SEO research concise and auditable.
+先写最值得执行的行动、支持证据和不确定性。只选择与问题相关的表，不要求全部输出。
 
-## Executive Summary
+## 页面与行动队列
 
-Include site and market, known competitors, strongest findings, evidence limitations, and the top 3 to 7 recommended actions. Keep each claim tied to an evidence label.
+| 优先级 | 已有页/拟建页 | 用户意图 | 证据及日期 | 行动与理由 | 成本 | 观察指标 |
+|---|---|---|---|---|---|---|
 
-## Competitor Keyword / Topic Map
+按影响、可信度、成本和依赖排序。必须阻断的问题优先；缺少证据的方向进入待验证队列。每个新页面需说明相对已有页的独特价值。
 
-| Keyword / Topic | Intent | Competitor URL | Evidence | Opportunity | Recommended Page |
-|---|---|---|---|---|---|
+## 诊断
 
-Rules:
-
-- Use `public-on-page` when the keyword is inferred from titles, headings, body copy, or sitemap.
-- Use `third-party-ranking` only when a ranking export exists.
-- Use `gsc-owned` only for the user's own Search Console rows.
-
-## Page Opportunity Queue
-
-| Priority | Page | Intent | Evidence | Claim Risk | Required Before Publish |
-|---|---|---|---|---|---|
-
-Priority guide:
-
-- `P0`: Direct revenue, brand-confusion, or high-intent comparison opportunity.
-- `P1`: Strong adjacent intent with clear page fit.
-- `P2`: Useful support page, glossary, or methodology page.
-- `P3`: Watchlist item that needs more validation.
-
-Claim-risk guide:
-
-- `low`: Public source or owned product facts only.
-- `medium`: Comparisons that need dates and official source links.
-- `high`: Pricing, quota, ranking, traffic, "best", "cheapest", or AI-citation claims.
-
-## SEO Health Diagnosis
-
-| Severity | Finding | Evidence | Impact | Recommended Fix |
+| 现象 | 已知事实 | 可能解释 | 区分解释的检查 | 可执行修复 |
 |---|---|---|---|---|
 
-Severity guide:
+## AI 表现
 
-- `P0`: Blocking indexing, rendering, canonicalization, or core page access.
-- `P1`: Missing high-intent pages, sitemap links, internal links, source methodology, or major metadata.
-- `P2`: Trust, freshness, schema, language alternate, or UX improvements.
-- `P3`: Nice-to-have cleanup.
+| 平台/模式 | 问题/市场 | 时间 | 回答状态 | 提及 | 引用 URL | 推荐 | 事实准确性 | 原始依据 |
+|---|---|---|---|---|---|---|---|---|
 
-## AI Citation Visibility Log
+说明样本和波动；把未测试与未引用分开。比较前后时保持问题组合、平台模式和市场一致，记录其他同期变化。
 
-| Platform | Prompt | Checked At | Answer Present | Cited Sites | User Site Cited | Competitor Cited | Screenshot / Log |
-|---|---|---|---|---|---|---|---|
+## 交付检查
 
-Rules:
-
-- One row per platform and prompt.
-- Record "not tested" separately from "not cited".
-- Screenshots or saved logs are required before making citation claims.
-
-## Acceptance Check
-
-Before calling the research complete, verify:
-
-- Competitor keyword claims have `third-party-ranking` evidence, or are clearly labeled as public on-page inference.
-- Owned ranking diagnosis has GSC or URL inspection evidence, or is labeled as public technical diagnosis.
-- Comparison and alternative pages have conservative claims, official source links, and checked dates.
-- AI visibility claims have platform, prompt, timestamp, answer result, citation result, and screenshot/log evidence.
-- Missing paid-tool exports, private analytics, or owner approvals are listed as data gaps rather than hidden.
+核心事实能追溯到来源，假设与估算清楚，优先项有下一步和完成/观察标准。账号、平台或数据问题只阻塞依赖它的结论，不阻塞基础报告。

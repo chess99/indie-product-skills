@@ -43,9 +43,13 @@ def score_candidates(document: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(candidates, list):
         raise ValueError("candidates must be a list")
 
+    seen_ids: set[str] = set()
     for candidate in candidates:
-        if not isinstance(candidate, dict) or not candidate.get("id"):
+        if not isinstance(candidate, dict) or not isinstance(candidate.get("id"), str) or not candidate["id"].strip():
             raise ValueError("each candidate must be an object with an id")
+        if candidate["id"] in seen_ids:
+            raise ValueError("candidate ids must be unique")
+        seen_ids.add(candidate["id"])
         candidate["weighted_score"] = _weighted_score(candidate)
 
     candidates.sort(key=lambda item: -item["weighted_score"])

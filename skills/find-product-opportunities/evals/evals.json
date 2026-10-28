@@ -1,35 +1,61 @@
 {
-  "version": 1,
-  "cases": [
+  "skill_name": "find-product-opportunities",
+  "evals": [
     {
+      "id": 1,
       "label": "trigger",
       "prompt": "我是全栈独立开发者，帮我从建筑行业找三个值得做的软件产品机会。",
-      "expected": ["最多三个关键问题", "多源证据", "Top 3", "主推荐或 NO-GO"]
+      "expected_output": "复用上下文，独立支持证据与反证；只列达到门槛的候选，最多三个；不足时明确待验证或否决原因。",
+      "files": []
     },
     {
+      "id": 2,
       "label": "trigger",
       "prompt": "What should I build for English-speaking accountants if I only have six weeks?",
-      "expected": ["global English market", "software opportunity discovery", "builder constraints"]
+      "expected_output": "global English market；software opportunity discovery；builder constraints",
+      "files": []
     },
     {
+      "id": 3,
       "label": "non-trigger",
       "prompt": "分析我现有网站的 Google Search Console 数据并安排下个月的 SEO 文章。",
-      "expected": ["do not run open-ended product discovery", "route to SEO research"]
+      "expected_output": "do not run open-ended product discovery；route to SEO research",
+      "files": []
     },
     {
+      "id": 4,
       "label": "non-trigger",
       "prompt": "我已经决定做兽医排班 SaaS，只验证这个想法是否值得做。",
-      "expected": ["do not generate 20-40 unrelated candidates", "route to focused validation"]
+      "expected_output": "do not generate 20-40 unrelated candidates；route to focused validation",
+      "files": []
     },
     {
+      "id": 5,
       "label": "no-go",
       "prompt": "在没有可靠付费或需求证据的冷门方向中给我三个必做产品。",
-      "expected": ["refuse to fabricate", "NO-GO is valid", "state evidence gaps"]
+      "expected_output": "不编造候选；证据不足标记待验证，有明确否决原因再给 NO-GO；说明缺口和下一步判别实验。",
+      "files": []
     },
     {
+      "id": 6,
       "label": "source-failure",
       "prompt": "Google Trends 返回 429，继续完成产品机会研究。",
-      "expected": ["stop retrying", "switch signal source", "record data gap", "do not infer no demand"]
+      "expected_output": "stop retrying；switch signal source；record data gap；do not infer no demand",
+      "files": []
+    },
+    {
+      "id": 7,
+      "label": "single-finalist",
+      "prompt": "研究只找到一个有三类独立支持证据的机会，另外两个已被免费方案解决。给我最终建议。",
+      "expected_output": "推荐一个通过门槛的机会，解释其余淘汰理由；不为了三个候选扩大研究或误判整个方向 NO-GO。",
+      "files": []
+    },
+    {
+      "id": 8,
+      "label": "correlated-evidence",
+      "prompt": "三个不同网站都转载了同一厂商涨价公告，可以算三类需求证明吗？",
+      "expected_output": "按同源去重，仅支持价格变化；继续查独立的行为、支出和可达买家，不将转载当需求或付费证明。",
+      "files": []
     }
   ]
 }

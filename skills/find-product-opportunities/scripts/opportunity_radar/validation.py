@@ -7,6 +7,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlsplit, urlunsplit
 
 from .scoring import score_candidates
 
@@ -36,7 +37,7 @@ CANDIDATE_FIELDS = {
 }
 CITATION_PATTERN = re.compile(r"\[(E\d{3,})\]")
 REPORT_PLACEHOLDER_PATTERN = re.compile(
-    r"待评分脚本写回|待补充|\b(?:TBD|TODO)\b|RECOMMENDATION\s*/\s*NO-GO",
+    r"待评分脚本写回|待补充|\b(?:TBD|TODO)\b|RECOMMENDATION\s*/\s*(?:NEEDS-VALIDATION\s*/\s*)?NO-GO",
     re.IGNORECASE,
 )
 
@@ -49,6 +50,48 @@ class ValidationIssue:
 
 def _issue(issues: list[ValidationIssue], code: str, message: str) -> None:
     issues.append(ValidationIssue(code, message))
+
+
+def _independent_support_count(rows: list[dict[str, Any]]) -> int:
+    """Match distinct support families to distinct declared original sources.
+
+    A source group identifies a shared original (including syndicated articles).
+    Without one, identical URLs are deduplicated, ignoring fragments only.
+    This checks declared provenance, not the truth of the underlying evidence.
+    """
+    sources: dict[str, set[str]] = {}
+    for row in rows:
+        if row.get("direction") != "support" or row.get("reliability") == "low":
+            continue
+        family = row.get("signal_family")
+        url = row.get("source_url")
+        if not isinstance(family, str) or not family.strip() or not isinstance(url, str):
+            continue
+        try:
+            parts = urlsplit(url)
+            if parts.scheme not in {"http", "https"} or not parts.hostname:
+                continue
+        except ValueError:
+            continue
+        group = row.get("source_group") or urlunsplit(
+            (parts.scheme.lower(), parts.netloc.lower(), parts.path or "/", parts.query, "")
+        )
+        if isinstance(group, str):
+            sources.setdefault(group, set()).add(family)
+
+    matched: dict[str, str] = {}
+
+    def assign(source: str, visited: set[str]) -> bool:
+        for family in sorted(sources[source]):
+            if family in visited:
+                continue
+            visited.add(family)
+            if family not in matched or assign(matched[family], visited):
+                matched[family] = source
+                return True
+        return False
+
+    return sum(assign(source, set()) for source in sources)
 
 
 def _load_evidence(path: Path, issues: list[ValidationIssue]) -> list[dict[str, Any]]:
@@ -77,8 +120,15 @@ def _load_evidence(path: Path, issues: list[ValidationIssue]) -> list[dict[str, 
                 "missing-evidence-field",
                 f"line {line_number} is missing: {', '.join(missing)}",
             )
-        if row.get("direction") not in {"support", "counter", "context"}:
+        if row.get("direction") not in ("support", "counter", "context"):
             _issue(issues, "invalid-evidence-direction", f"line {line_number} has invalid direction")
+        if row.get("reliability") not in ("low", "medium", "high"):
+            _issue(issues, "invalid-evidence-reliability", f"line {line_number} has invalid reliability")
+        for field in EVIDENCE_FIELDS:
+            if field in row and (not isinstance(row[field], str) or not row[field].strip()):
+                _issue(issues, "invalid-evidence-field", f"line {line_number}: {field} must be non-empty text")
+        if "source_group" in row and (not isinstance(row["source_group"], str) or not row["source_group"].strip()):
+            _issue(issues, "invalid-source-group", f"line {line_number} has invalid source_group")
         rows.append(row)
     return rows
 
@@ -141,11 +191,7 @@ def validate_run(run_path: Path) -> list[ValidationIssue]:
     except ValueError as error:
         _issue(issues, "invalid-candidate-score", str(error))
         expected_document = {"candidates": []}
-    expected_by_id = {
-        candidate.get("id"): candidate
-        for candidate in expected_document.get("candidates", [])
-        if isinstance(candidate, dict)
-    }
+    expected_by_id = {candidate["id"]: candidate for candidate in expected_document.get("candidates", [])}
 
     finalists: list[dict[str, Any]] = []
     recommended: list[dict[str, Any]] = []
@@ -154,7 +200,7 @@ def validate_run(run_path: Path) -> list[ValidationIssue]:
             _issue(issues, "invalid-candidate", "candidate must be an object")
             continue
         candidate_id = candidate.get("id", "<unknown>")
-        expected = expected_by_id.get(candidate_id)
+        expected = expected_by_id.get(candidate_id) if isinstance(candidate_id, str) else None
         if expected is not None and any(
             candidate.get(field) != expected.get(field)
             for field in ("weighted_score", "base_rank", "final_rank")
@@ -181,6 +227,9 @@ def validate_run(run_path: Path) -> list[ValidationIssue]:
             evidence_ids = []
         referenced_rows = []
         for evidence_id in evidence_ids:
+            if not isinstance(evidence_id, str):
+                _issue(issues, "invalid-evidence-references", f"candidate {candidate_id} has a non-string evidence id")
+                continue
             row = evidence_by_id.get(evidence_id)
             if row is None:
                 _issue(
@@ -193,19 +242,20 @@ def validate_run(run_path: Path) -> list[ValidationIssue]:
 
         if candidate.get("status") == "finalist":
             finalists.append(candidate)
-            families = {
-                row.get("signal_family")
-                for row in referenced_rows
-                if row.get("signal_family")
-            }
-            if len(families) < 3:
+            support_count = _independent_support_count(referenced_rows)
+            if support_count < 3:
                 _issue(
                     issues,
                     "finalist-signal-diversity",
-                    f"finalist {candidate_id} has {len(families)} independent signal families",
+                    f"finalist {candidate_id} has {support_count} independent support families",
                 )
             checks = candidate.get("counterevidence_checks")
-            if not isinstance(checks, list) or not checks:
+            if not isinstance(checks, list) or not checks or any(
+                not isinstance(check, dict) or any(
+                    not isinstance(check.get(field), str) or not check[field].strip()
+                    for field in ("source_url", "checked_at", "finding")
+                ) for check in checks
+            ):
                 _issue(
                     issues,
                     "missing-counterevidence-check",
@@ -219,16 +269,21 @@ def validate_run(run_path: Path) -> list[ValidationIssue]:
                     "confidence-conflict",
                     f"finalist {candidate_id} cannot be high confidence with counter evidence",
                 )
-            if candidate.get("recommended") is True:
-                recommended.append(candidate)
+            if candidate.get("confidence") not in ("medium", "high"):
+                _issue(issues, "finalist-confidence", f"finalist {candidate_id} needs medium or high confidence")
+        if candidate.get("recommended") is True:
+            recommended.append(candidate)
+            if candidate.get("status") != "finalist":
+                _issue(issues, "recommendation-status", f"recommended candidate {candidate_id} must be a finalist")
 
     report_ids = set(CITATION_PATTERN.findall(report))
     for evidence_id in report_ids:
         if evidence_id not in evidence_by_id:
             _issue(issues, "broken-report-reference", f"report references missing {evidence_id}")
     for candidate in finalists:
-        for evidence_id in candidate.get("evidence_ids", []):
-            if evidence_id in evidence_by_id and evidence_id not in report_ids:
+        ids = candidate.get("evidence_ids", [])
+        for evidence_id in ids if isinstance(ids, list) else []:
+            if isinstance(evidence_id, str) and evidence_id in evidence_by_id and evidence_id not in report_ids:
                 _issue(
                     issues,
                     "missing-report-citation",
@@ -237,11 +292,11 @@ def validate_run(run_path: Path) -> list[ValidationIssue]:
 
     decision = document.get("decision")
     if decision == "recommendation":
-        if len(finalists) != 3:
+        if not 1 <= len(finalists) <= 3:
             _issue(
                 issues,
                 "finalist-count",
-                f"recommendation requires 3 finalists, found {len(finalists)}",
+                f"recommendation requires 1–3 finalists, found {len(finalists)}",
             )
         if len(recommended) != 1:
             _issue(
@@ -249,12 +304,14 @@ def validate_run(run_path: Path) -> list[ValidationIssue]:
                 "recommendation-count",
                 f"recommendation requires 1 primary choice, found {len(recommended)}",
             )
-    elif decision == "no-go":
+    elif decision in ("no-go", "needs-validation"):
         if recommended:
-            _issue(issues, "no-go-recommendation", "no-go runs cannot contain a primary recommendation")
-        if "NO-GO" not in report.upper():
-            _issue(issues, "missing-no-go-marker", "no-go report must state NO-GO")
+            _issue(issues, "no-go-recommendation", f"{decision} runs cannot contain a primary recommendation")
+        if finalists:
+            _issue(issues, "non-recommendation-finalists", f"{decision} runs use pending/rejected candidates, not finalists")
+        if decision.upper() not in report.upper():
+            _issue(issues, "missing-decision-marker", f"report must state {decision.upper()}")
     else:
-        _issue(issues, "invalid-decision", "decision must be recommendation or no-go")
+        _issue(issues, "invalid-decision", "decision must be recommendation, needs-validation or no-go")
 
     return issues

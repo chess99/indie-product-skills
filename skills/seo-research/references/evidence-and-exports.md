@@ -1,79 +1,28 @@
-# SEO Research Evidence And Exports
+# 证据与数据
 
-Use this reference when collecting or validating evidence for `seo-research`.
-
-## Evidence Strength
-
-| Evidence | Strong for | Weak for |
+| 标签 | 能支持什么 | 使用限制 |
 |---|---|---|
-| Google Search Console export | Owned queries, pages, impressions, CTR, average position | Competitor rankings |
-| Semrush/Ahrefs/DataForSEO/5118/Aizhan export | Competitor keyword estimates, ranking URLs, keyword gaps | Exact traffic or conversions |
-| Public HTML and sitemap | On-page targeting, crawlable page inventory | Rankings, search volume, traffic |
-| Public SERP observation | Directional search landscape and visible competitors | Stable rank, personalization-free results |
-| Google Trends/Baidu Index | Directional demand movement | Owned ranking or business value |
-| Similarweb export | Directional traffic/channel/geography comparison | Keyword-level ranking |
-| Backlink export | Referring-domain and authority gap diagnosis | Direct ranking causality |
-| AI answer screenshot/log | Citation behavior for exact prompt/platform/date | Universal AI visibility |
+| `gsc-owned` | 自有站点查询、页面、展示、点击、CTR、平均位置 | 保留时间、国家、设备和聚合口径；匿名查询/导出限额可能导致总量不齐 |
+| `third-party-ranking` | 指定工具采样的排名与量级估算 | 保留市场、日期、工具；流量/难度/搜索量均可能是估算 |
+| `public-on-page` | 页面定位、声明、公开功能与定价 | 不证明排名、需求量或收入 |
+| `public-serp` | 当次查询的可见结果 | 地域、语言、时间和个性化可能影响结果 |
+| `trend-signal` | 相对兴趣及变化 | 不换算绝对搜索量或付费意愿 |
+| `backlink-tool` | 发现的来源页、目标页与链接关系 | 指标属工具口径，不证明排名因果 |
+| `ai-answer-log` | 精确条件下的提及、引用、推荐与准确性 | 不外推为普遍可见性；观察变化不自动证明优化有效 |
+| `hypothesis` | 待验证解释 | 写出能区分解释的下一步 |
 
-## Minimum Export Fields
+## 按问题使用导出
 
-### Owned GSC Query/Page Export
+最低要求是来源、对象、时间和所分析的指标。GSC 查询表未必同时有页面维度，竞品表未必有 difficulty；仅在分析确实需要该列时要求补充。保留空值，不能当零；只合并相同指标口径。
 
-Required fields: `query`, `page`, `clicks`, `impressions`, `ctr`, `position`, `date_range`, plus `country` and `device` when available.
+用户站点与竞品数据分别确认归属。CTR 汇总用总点击/总展示；平均位置保留原始聚合语义，不能简单平均各行并称为全站排名。变化分析检查等长窗口、工作日/周末、季节性、发布与追踪改动。相关性只能生成解释，因果判断需要更强设计。
 
-Quality gate:
+## AI 检查记录
 
-- Pages must belong to the user's domain.
-- Include at least one non-header data row.
-- Keep date range visible in the file or summary.
+保留平台/模式、精确问题、语言/市场、检查时间、是否生成回答、提及品牌、引用 URL、是否推荐、事实是否正确及原始响应依据。无法导出时可引用工具中实际读到的回答与来源；需要复用或审计时保存用户允许的日志/截图。
 
-### Competitor Keyword Export
+不可访问的引擎标记未测试。样本覆盖和重复次数如实报告，不用一次回答推导稳定“AI 排名”。
 
-Required fields: `competitor_domain`, `keyword`, `ranking_url`, `position`, `volume`, `difficulty`, `traffic_estimate`, `source_tool`, `source_date`.
+## 隐私
 
-Quality gate:
-
-- `competitor_domain` must match the competitor being analyzed.
-- Do not mix multiple tools without a `source_tool` value.
-- Treat volume and traffic as estimates, not exact facts.
-
-### Trend Opportunity Log
-
-Required fields: `term`, `market`, `source`, `source_date`, `trend_direction`, `related_queries`, `opportunity_note`, `evidence_label`.
-
-Quality gate:
-
-- Use the platform's native terms where possible.
-- Do not convert trend indexes into search volume.
-
-### Similarweb Or Traffic Export
-
-Required fields: `domain`, `date_range`, `visits` or `traffic_estimate`, `traffic_channel`, `country`, `source_tool`, `source_date`.
-
-Quality gate:
-
-- Include both the user's site and the competitor when making comparisons.
-- Use directional language such as "appears higher" or "estimated", not exact traffic claims.
-
-### Backlink Export
-
-Required fields: `target_domain`, `referring_domain`, `source_url`, `target_url`, `anchor`, `link_type`, `authority_metric`, `source_tool`, `source_date`.
-
-Quality gate:
-
-- Keep owned and competitor exports separate before summarizing.
-- Do not claim causality from backlink count alone.
-
-### AI Answer Log
-
-Required fields: `platform`, `prompt`, `checked_at`, `answer_present`, `cited_sites`, `owned_site_cited`, `competitor_site_cited`, `screenshot_or_log_path`.
-
-Quality gate:
-
-- Record exact prompts.
-- Include screenshot or saved log path for every claim.
-- Avoid broad statements such as "AI cites us" unless platform/date/prompt coverage supports it.
-
-## Privacy Rule
-
-Private exports should stay in the user's project workspace or a private data folder, not inside the public skill plugin. Public plugin files should contain schemas, examples, and workflows only.
+原始导出、登录数据和研究日志放在用户授权的位置，不写入公开插件仓库。没有用户授权不从账号联系人推断外联名单。

@@ -1,25 +1,33 @@
 {
-  "version": 1,
-  "cases": [
+  "skill_name": "find-product-opportunities",
+  "evals": [
     {
+      "id": 1,
       "label": "discovery-diversity",
       "prompt": "AI coding tools 最近很火。我是 solo 全栈开发者，帮我找可做的产品机会。",
-      "expected": ["stable jobs plus recent deltas", "multiple opportunity pattern families", "do not generate only tool clones", "explicit payer or personal spend", "small wedge and proof artifact"]
+      "expected_output": "stable jobs plus recent deltas；multiple opportunity pattern families；do not generate only tool clones；explicit payer or personal spend；small wedge and proof artifact",
+      "files": []
     },
     {
+      "id": 2,
       "label": "oss-commercialization",
       "prompt": "我发现一个 GitHub 开源项目这周涨了很多 star，而且好像没有商业版本。帮我找可做的机会。",
-      "expected": ["stars do not prove willingness to pay", "do not default to hosted clone", "inspect team support policy audit cost upgrade backup or vertical layers", "verify a payer", "counterevidence"]
+      "expected_output": "stars do not prove willingness to pay；do not default to hosted clone；inspect team support policy audit cost upgrade backup or vertical layers；verify a payer；counterevidence",
+      "files": []
     },
     {
+      "id": 3,
       "label": "trend-spike",
       "prompt": "有个新关键词的相对搜索兴趣一周涨了很多，就按这个趋势给我找产品。",
-      "expected": ["trend is directional only", "identify durable job", "alternate explanation such as news or navigation spike", "seek independent signal families", "mark decay risk"]
+      "expected_output": "trend is directional only；identify durable job；alternate explanation such as news or navigation spike；seek independent signal families；mark decay risk",
+      "files": []
     },
     {
+      "id": 4,
       "label": "pain-not-gap",
       "prompt": "社区里很多人在骂一个开发工具很难用，帮我做它的替代品。",
-      "expected": ["Pain != Product Gap", "classify friction such as setup config docs defaults pricing migration verification", "do not assume full replacement", "find current workaround", "test smallest wedge"]
+      "expected_output": "Pain != Product Gap；classify friction such as setup config docs defaults pricing migration verification；do not assume full replacement；find current workaround；test smallest wedge",
+      "files": []
     }
   ]
 }

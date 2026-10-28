@@ -1,128 +1,39 @@
-# Core Web Vitals 优化参考
+# 按瓶颈优化
 
-## 目标指标
+## 加载与 LCP
 
-| 指标 | 优秀 | 需改进 | 差 |
-|---|---|---|---|
-| LCP（最大内容绘制） | < 2.5s | 2.5–4s | > 4s |
-| CLS（累积布局偏移） | < 0.1 | 0.1–0.25 | > 0.25 |
-| INP（交互到下一帧） | < 200ms | 200–500ms | > 500ms |
-
-检测工具：[PageSpeed Insights](https://pagespeed.web.dev/)、Chrome DevTools > Lighthouse
-
----
-
-## 字体优化
-
-字体是 LCP 和 CLS 的主要来源。
-
-### 异步加载 Google Fonts（避免 FOIT）
+先把 LCP 拆成服务响应、资源加载延迟、下载和渲染延迟。图片大才调整尺寸/压缩；发现晚才处理 HTML 可发现性、优先级或 preload；被 JS 隐藏则修渲染路径。不要给所有图片 preload。
 
 ```html
-<!-- preconnect 提前建立连接 -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-<!-- 异步加载，onload 触发后切换 rel -->
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap"
-      as="style" onload="this.onload=null;this.rel='stylesheet'">
-
-<!-- 无 JS 降级 -->
-<noscript>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
-</noscript>
+<!-- 已确认的首屏关键图片；尺寸与真实素材比例一致 -->
+<img src="/hero.webp" width="1200" height="675"
+     fetchpriority="high" alt="产品操作预览">
+<!-- 非首屏图片才考虑延迟加载 -->
+<img src="/detail.webp" width="800" height="600"
+     loading="lazy" decoding="async" alt="详细结果">
 ```
 
-### 在 CSS 中声明 font-display
+已有 `srcset`/`sizes` 时保持资源选择一致，避免 preload 下载另一个尺寸。优先复用框架图片和字体组件。字体检查字重、字符子集、fallback 度量及 `font-display`，不要一律注入异步 CSS hack。
 
-```css
-@font-face {
-  font-display: swap; /* 先用系统字体渲染，字体加载完成后替换 */
-}
-```
+## CLS
 
----
+查看位移轨迹后处理实际来源：媒体宽高/比例、广告与异步组件预留空间、字体匹配、交互后内容的位置。预留尺寸应覆盖真实设备布局；不能用隐藏内容换分数。
 
-## 第三方脚本延迟加载
+## INP 与长任务
 
-分析脚本（GA4、Microsoft Clarity 等）不需要首屏同步执行。
+分开看输入排队、事件处理和下一帧绘制。拆分过长任务，减少同步布局与 DOM 工作；适合的计算移至 worker。先反馈交互状态，再处理非关键工作。TBT 改善后仍要复测真实交互。
 
-### 方案 1：defer/async
+第三方脚本应按用途、同意状态和时机加载。延迟 analytics 到首次交互会漏记未交互访客，不能默认这么做。确需多种触发器加载同一资源时使用共享的一次性状态；每种事件各自 `{once: true}` 仍可能导致重复加载。
 
-```html
-<!-- 对于不依赖 DOM 的脚本 -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXX"></script>
-```
+## 缓存与服务器
 
-### 方案 2：用户交互后加载（最激进，LCP 提升最显著）
+区分静态版本资源、HTML、用户数据和 API。只有内容寻址资源适合 `public, max-age=31536000, immutable`。HTML 要考虑发布刷新；私有响应不能误设共享缓存。先查现有缓存/慢查询/重定向证据，再决定是否更换部署平台。
 
-```js
-// 用户首次交互后再加载 Clarity
-function loadClarity() {
-  (function(c,l,a,r,i,t,y){
-    c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-    t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-    y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-  })(window, document, "clarity", "script", "YOUR_CLARITY_ID");
-}
+## 权威参考
 
-['click', 'scroll', 'keydown', 'touchstart'].forEach(e =>
-  window.addEventListener(e, loadClarity, { once: true, passive: true })
-);
-```
+- [Web Vitals](https://web.dev/articles/vitals)：指标和 p75 口径。
+- [INP](https://web.dev/articles/inp)：真实交互与响应分解。
+- [优化 LCP](https://web.dev/articles/optimize-lcp)：子阶段诊断。
+- [PSI API](https://developers.google.com/speed/docs/insights/v5/get-started)：字段、错误与 CrUX 数据变化。
 
-同样的模式适用于任何第三方脚本（把 `loadClarity` 替换为加载目标脚本的逻辑）。
-
----
-
-## 图片优化
-
-```html
-<!-- 首屏关键图片：preload + fetchpriority -->
-<link rel="preload" as="image" href="/hero.webp" fetchpriority="high">
-
-<!-- 非首屏图片：lazy load -->
-<img src="image.webp" loading="lazy" decoding="async" width="800" height="600" alt="...">
-```
-
-- 使用 WebP/AVIF 格式（比 JPEG 小 30-50%）
-- 始终声明 `width` 和 `height`（防止 CLS）
-- 首屏图片不加 `loading="lazy"`
-
----
-
-## 实测优化记录
-
-以下优化在实际项目中验证有效：
-
-| 优化 | 效果 |
-|---|---|
-| Google Fonts 改为 `preload` + `onload` 异步加载 | LCP -0.5s，消除 FOIT |
-| Microsoft Clarity 改为用户交互后加载 | LCP -0.3s，TBT 降低 |
-| 图片添加 `width`/`height` 属性 | CLS 从 0.15 降至 0.02 |
-
----
-
-## 快速诊断命令
-
-```bash
-# PageSpeed Insights API（移动端）
-curl "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https://YOURDOMAIN&strategy=mobile"
-
-# 桌面端
-curl "https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=https://YOURDOMAIN&strategy=desktop"
-
-# 用 Lighthouse CLI（需要 Node.js）
-npx lighthouse https://YOURDOMAIN --only-categories=performance --output=json
-```
-
----
-
-## TTFB 优化
-
-Time to First Byte > 600ms 通常是托管问题，不是代码问题：
-
-- 从源站迁移到 CDN-edge 部署（Cloudflare Pages、Vercel、Netlify）
-- 确认已启用 HTTP/2
-- 静态资源加长期缓存：`Cache-Control: public, max-age=31536000, immutable`
-- 如果用 Cloudflare，开启 Rocket Loader（谨慎，会影响 JS 执行顺序）
+使用平台接口或阈值前核对当前文档；同一个名词在实验室与真实用户数据中可能有不同范围。
