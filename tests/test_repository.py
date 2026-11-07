@@ -1,5 +1,6 @@
 import hashlib
 import json
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -34,6 +35,43 @@ class RepositoryTests(unittest.TestCase):
             skill.mkdir(parents=True)
             (skill / "SKILL.md").write_text("[Missing](references/missing.md)\n[Web](https://example.com)", encoding="utf-8")
             self.assertEqual(len(check_references(root)), 1)
+
+    def test_navigation_detects_links_to_a_renamed_skill(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            skill = root / "skills/web-performance"
+            skill.mkdir(parents=True)
+            (skill / "SKILL.md").write_text("# Website performance\n", encoding="utf-8")
+            (root / "docs").mkdir()
+            (root / "docs/catalog.md").write_text("[Performance](../skills/performance/SKILL.md)\n", encoding="utf-8")
+            (root / "README.md").write_text("[Performance](skills/web-performance/SKILL.md)\n", encoding="utf-8")
+            self.assertEqual(check_references(root), ["broken reference in docs/catalog.md: ../skills/performance/SKILL.md"])
+            (root / "docs/catalog.md").write_text("[Performance](../skills/web-performance/SKILL.md)\n", encoding="utf-8")
+            self.assertEqual(check_references(root), [])
+
+    def test_manifest_check_detects_incomplete_plugin_rename(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            for name in (".claude-plugin", ".codex-plugin"):
+                shutil.copytree(ROOT / name, root / name)
+            # Compatibility links are absent in this fixture; keep their baseline diagnostics.
+            baseline = check_manifests(root)
+            cases = [
+                (".claude-plugin/marketplace.json", lambda data: data.update(name="previous-name"), "marketplace identity differs from plugin"),
+                (".claude-plugin/marketplace.json", lambda data: data["plugins"][0].update(name="previous-name"), "marketplace must expose the local plugin under its current name"),
+                (".claude-plugin/marketplace.json", lambda data: data["plugins"][0].update(source="./old-plugin"), "marketplace must expose the local plugin under its current name"),
+                (".codex-plugin/plugin.json", lambda data: data.update(repository="https://example.com/old-repo"), "plugin manifests disagree on repository"),
+                (".codex-plugin/plugin.json", lambda data: data.update(homepage="https://example.com/old-repo"), "plugin manifests disagree on homepage"),
+            ]
+            for name, mutate, expected in cases:
+                with self.subTest(name=name, expected=expected):
+                    path = root / name
+                    original = path.read_text(encoding="utf-8")
+                    data = json.loads(original)
+                    mutate(data)
+                    path.write_text(json.dumps(data), encoding="utf-8")
+                    self.assertEqual(check_manifests(root), [expected] + baseline)
+                    path.write_text(original, encoding="utf-8")
 
     def test_missing_compatibility_patch_is_reported(self):
         with tempfile.TemporaryDirectory() as temp:

@@ -1,6 +1,6 @@
 # Link Ops Workspace Schema
 
-Workspace 是项目私有运行数据，不应提交到 `webmaster-skills` 公共仓库。
+Workspace 是项目私有运行数据，不应提交到 `indie-product-skills` 公共仓库。
 
 初始化后：
 

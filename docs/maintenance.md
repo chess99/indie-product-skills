@@ -4,6 +4,8 @@
 
 本地技能直接维护 `skills/<name>/`。只在任务需要时加载 references；入口描述应能区分邻近技能。改变行为时先记录实际失败场景，再修改说明或工具。清单版本在 `.claude-plugin/plugin.json`、`.codex-plugin/plugin.json` 和 marketplace metadata 中保持一致。
 
+技能保持扁平目录，按任务阶段维护 [技能目录](skill-catalog.md)，并注明平台或业务模式限制。新增技能先审查现有覆盖：用户研究、定位文档、发布营销分别复用已有技能；新增入口应承担独立决策。名称与入口的破坏性变更记录迁移方式，当前见 [3.0 迁移说明](migration-3.0.md)。
+
 兼容入口保持符号链接。Windows 检出前启用 `git config --global core.symlinks true`，并使用允许创建符号链接的环境；CI 已显式启用。
 
 ## 验证层次
@@ -36,7 +38,7 @@ python scripts/validate_repository.py --skills-ref skills-ref --claude claude
 
 ### 3. 模型行为
 
-本地六项技能均有 `evals/evals.json`，采用 `skill_name` / `evals` / `prompt` / `expected_output` / `files` 结构；发现模式补充集位于 `discovery-patterns.json`。
+本地技能均有 `evals/evals.json`，采用 `skill_name` / `evals` / `prompt` / `expected_output` / `files` 结构；发现模式补充集位于 `discovery-patterns.json`。跨形态改动需覆盖用户指定平台、非 Web 任务、官网与原生应用边界，以及未执行实验不得当作已验证结果等场景。
 
 对行为改动选择相关案例，在隔离临时目录分别运行当前技能与旧版或不加载技能的基线。两组使用相同任务、输入、工具条件与模型配置，不把评分标准泄露为待执行任务。记录产出、工具调用、时间/用量、错误和副作用，由独立评分或人工复核实际结果。只运行到授权的只读/本地边界。
 

@@ -1,17 +1,17 @@
 {
-  "name": "webmaster-skills",
+  "name": "indie-product-skills",
   "owner": {
     "name": "chess99",
     "url": "https://github.com/chess99"
   },
   "metadata": {
-    "description": "Agent-led product discovery, webmaster, SEO, launch, performance, and growth skills for independent developers",
-    "version": "2.0.0"
+    "description": "Software product discovery, validation, launch, and growth skills for independent developers",
+    "version": "3.0.0"
   },
   "plugins": [
     {
-      "name": "webmaster-skills",
-      "description": "Agent-led product discovery, webmaster, SEO, launch, performance, and growth skills for independent developers",
+      "name": "indie-product-skills",
+      "description": "Software product discovery, validation, launch, and growth skills for independent developers",
       "source": "./"
     }
   ]

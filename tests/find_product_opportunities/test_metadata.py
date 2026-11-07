@@ -12,10 +12,10 @@ class MetadataTests(unittest.TestCase):
     def test_codex_manifest_declares_skill_only_plugin(self) -> None:
         manifest = json.loads((ROOT / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
 
-        self.assertEqual(manifest["name"], "webmaster-skills")
+        self.assertEqual(manifest["name"], "indie-product-skills")
         self.assertRegex(manifest["version"], r"^\d+\.\d+\.\d+$")
         self.assertEqual(manifest["author"]["name"], "chess99")
-        self.assertEqual(manifest["repository"], "https://github.com/chess99/webmaster-skills")
+        self.assertEqual(manifest["repository"], "https://github.com/chess99/indie-product-skills")
         self.assertEqual(manifest["license"], "MIT")
         self.assertEqual(manifest["skills"], "./skills/")
         self.assertFalse({"apps", "mcpServers", "hooks"} & set(manifest))

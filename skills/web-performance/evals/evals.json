@@ -1,5 +1,5 @@
 {
-  "skill_name": "performance",
+  "skill_name": "web-performance",
   "evals": [
     {
       "id": 1,
@@ -17,6 +17,13 @@
       "id": 3,
       "prompt": "为了跑到 100 分，能把 analytics 全部等到第一次点击才加载吗？",
       "expected_output": "说明漏计未交互访客风险；根据同意要求与测量目标选择时机，核对事件去重，不默认牺牲测量换分数。",
+      "files": []
+    },
+    {
+      "id": 4,
+      "label": "native-app-boundary",
+      "prompt": "我的原生 macOS 应用批量处理图片时内存飙升，帮我分析性能，不涉及网页或 WebView。",
+      "expected_output": "使用原生性能分析和项目工程能力，不运行 Lighthouse 或用 Core Web Vitals 判断原生内存问题。",
       "files": []
     }
   ]

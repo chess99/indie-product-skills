@@ -1,26 +1,26 @@
 {
-  "name": "webmaster-skills",
-  "version": "2.0.0",
-  "description": "Agent-led product discovery, webmaster, SEO, launch, performance, and growth skills for independent developers",
+  "name": "indie-product-skills",
+  "version": "3.0.0",
+  "description": "Software product discovery, validation, launch, and growth skills for independent developers",
   "author": {
     "name": "chess99",
     "url": "https://github.com/chess99"
   },
-  "homepage": "https://github.com/chess99/webmaster-skills",
-  "repository": "https://github.com/chess99/webmaster-skills",
+  "homepage": "https://github.com/chess99/indie-product-skills",
+  "repository": "https://github.com/chess99/indie-product-skills",
   "license": "MIT",
   "keywords": [
-    "product-research",
-    "webmaster",
-    "seo",
-    "indie-hacker",
+    "product-discovery",
+    "product-validation",
+    "indie-developer",
+    "product-growth",
     "agent-skills"
   ],
   "skills": "./skills/",
   "interface": {
-    "displayName": "Webmaster Skills",
-    "shortDescription": "Find products, launch sites, and grow them.",
-    "longDescription": "Agent-led product opportunity research, SEO, launch, performance, search submission, and growth workflows for independent developers.",
+    "displayName": "Indie Product Skills",
+    "shortDescription": "Discover, validate, launch, and grow software products.",
+    "longDescription": "Agent-led software product discovery, idea validation, product scope, launch marketing, and growth for independent developers, with specialized Web and app store workflows.",
     "developerName": "chess99",
     "category": "Productivity",
     "capabilities": [
@@ -29,8 +29,8 @@
     ],
     "defaultPrompt": [
       "Find and rank software product opportunities for an independent developer.",
-      "Research SEO opportunities for my site and prioritize the next pages.",
-      "Run the post-launch checks for my new website."
+      "Evaluate my desktop app idea and define the smallest useful first version.",
+      "Plan the launch and first acquisition channels for my mobile app."
     ]
   }
 }

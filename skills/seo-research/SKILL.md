@@ -2,7 +2,7 @@
 name: seo-research
 description: 研究现有或拟建网站的搜索机会、竞品关键词/页面、排名变化、对比页和 AI 搜索表现，使用公开证据或 GSC/SEO 工具数据制定优先行动。开放式软件产品发现使用 find-product-opportunities。
 metadata:
-  version: 2.0.0
+  version: 2.0.1
 ---
 
 # SEO 研究
@@ -37,6 +37,6 @@ AI 搜索检查记录精确问题与原始响应。未测试、未生成回答�
 
 ## 交付与协作
 
-按 [输出参考](references/research-outputs.md) 交付有依据的优先队列和最重要的数据缺口。性能问题用 `performance`，搜索提交用 `search-console`，链接/第三方引用用 `link-ops`，AI 专项用 `ai-seo`。按实际可用名称加载，缺少插件不阻塞已能完成的研究。
+按 [输出参考](references/research-outputs.md) 交付有依据的优先队列和最重要的数据缺口。性能问题用 `web-performance`，搜索提交用 `search-console`，链接/第三方引用用 `link-ops`，AI 专项用 `ai-seo`。按实际可用名称加载，缺少插件不阻塞已能完成的研究。
 
 研究默认在对话中交付。需要文件或用户要求持续复盘时才保存/安排；外部发布与联系遵循已有授权。私有数据不进入插件仓库。

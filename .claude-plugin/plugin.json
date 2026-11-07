@@ -1,12 +1,12 @@
 {
-  "name": "webmaster-skills",
-  "description": "Agent-led product discovery, webmaster, SEO, launch, performance, and growth skills for independent developers",
-  "version": "2.0.0",
+  "name": "indie-product-skills",
+  "description": "Software product discovery, validation, launch, and growth skills for independent developers",
+  "version": "3.0.0",
   "author": {
     "name": "chess99"
   },
-  "homepage": "https://github.com/chess99/webmaster-skills",
-  "repository": "https://github.com/chess99/webmaster-skills",
+  "homepage": "https://github.com/chess99/indie-product-skills",
+  "repository": "https://github.com/chess99/indie-product-skills",
   "license": "MIT",
   "skills": "./skills/"
 }

@@ -26,7 +26,7 @@
       "id": 4,
       "label": "non-trigger",
       "prompt": "我已经决定做兽医排班 SaaS，只验证这个想法是否值得做。",
-      "expected_output": "do not generate 20-40 unrelated candidates；route to focused validation",
+      "expected_output": "不生成无关候选；使用 validate-product-idea 聚焦该想法的需求、替代、投入风险与下一项实验。",
       "files": []
     },
     {
@@ -55,6 +55,13 @@
       "label": "correlated-evidence",
       "prompt": "三个不同网站都转载了同一厂商涨价公告，可以算三类需求证明吗？",
       "expected_output": "按同源去重，仅支持价格变化；继续查独立的行为、支出和可达买家，不将转载当需求或付费证明。",
+      "files": []
+    },
+    {
+      "id": 9,
+      "label": "non-web-opportunity",
+      "prompt": "从需要离线批量处理文件的技术用户中找产品机会，我可以做桌面工具或 CLI，暂不想运行云服务。",
+      "expected_output": "在本地与离线约束内研究任务和付费/分发证据，不默认 SaaS、云上传或订阅，不为凑平台种类扩展候选。",
       "files": []
     }
   ]

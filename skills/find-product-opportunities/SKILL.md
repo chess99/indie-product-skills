@@ -1,8 +1,8 @@
 ---
 name: find-product-opportunities
-description: 从行业、受众、开发者能力或技术变化中发现并比较软件产品机会，给出有证据的 1–3 个候选与主推荐、待验证或 NO-GO。适用于开放式产品发现；单一成熟想法验证和已有站点 SEO 选题使用针对性研究。
+description: 从行业、受众、开发者能力或技术变化中发现并比较软件产品机会，给出有证据的 1–3 个候选与主推荐、待验证或 NO-GO。适用于不限软件形态的开放式产品发现；已选定想法的验证使用 validate-product-idea，已有网站选题使用 seo-research。
 metadata:
-  version: 2.0.0
+  version: 2.1.0
 ---
 
 # 产品机会发现
@@ -24,6 +24,8 @@ metadata:
 需要拓展方向时读取 [发现方法](references/discovery-playbook.md)，再按相关主题查 [模式库](references/opportunity-pattern-library.md)；来源受阻时读取 [来源策略](references/source-strategy.md)。[BuilderPulse 研究](references/builderpulse-study.md) 仅用于维护方法和理解历史样本。
 
 每个有潜力的候选应能说明：目标用户与任务、当前替代、付款人、最小价值切口、首个可达渠道、最可能推翻它的解释。早期不要求为每个点子填写完整卡片。
+
+产品形态跟随任务：结合使用场景、离线与数据约束、设备能力、集成入口、分发渠道和维护成本选择 Web、移动应用、桌面软件、扩展、CLI 或 API。不默认采用 SaaS 或订阅，也不为覆盖平台而凑候选。用户已限定平台时在该约束内研究；形态尚不明确且会改变推荐时，使用 [形态与首版取舍](../validate-product-idea/references/product-form-and-scope.md)。
 
 检查长期付费任务、手工流程和迁移/审核/导出等稳定需求，也检查成本、能力、规则或分发变化。痛点可能来自配置、文档或定价；开源增长可能产生支持、集成、验证等相邻需求。不要把抱怨或 stars 直接转成完整 SaaS 替代品。
 

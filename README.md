@@ -1,67 +1,71 @@
-# webmaster-skills
+# indie-product-skills
 
-面向独立开发者的产品发现、建站与增长技能集合，支持 Codex 和 Claude Code。按当前问题选择工作流，由 Agent 完成研究、判断、修复和验证。
+面向独立开发者的软件产品机会发现、验证、发布与增长技能集合，支持 Codex 和 Claude Code。按当前问题选择工作流，由 Agent 完成研究、判断、执行和验证。
+
+产品可以是 Web、移动应用、桌面软件、扩展、CLI 或 API。先确定用户任务与商业机会，再选择合适的交付形态；通用产品方法跨形态复用，平台专项按需使用。
 
 ## 安装
 
+Claude Code：
+
 ```bash
-/plugin install webmaster-skills --marketplace chess99/webmaster-skills
+claude plugin install indie-product-skills --marketplace chess99/indie-product-skills
 ```
 
-仓库已包含选用的营销技能，无需再安装同名 marketing-skills 插件。不同客户端的插件安装方式以其当前说明为准；兼容发现目录均指向 `skills/`。
+其他客户端按其当前插件安装方式使用 [GitHub 仓库](https://github.com/chess99/indie-product-skills)。仓库已包含选用的营销技能，无需再安装同名 marketing-skills 插件；兼容发现目录均指向 `skills/`。
+
+从 `webmaster-skills` 升级时，插件身份与两个 Web 技能名称有变化，见 [3.0 迁移说明](docs/migration-3.0.md)。本地检出文件夹可以保留原名。
 
 ## 从当前问题开始
 
-| 你要解决的问题 | 技能 | 交付 |
+| 阶段 | 你要解决的问题 | 入口与交付 |
 |---|---|---|
-| 接下来做什么产品 | [find-product-opportunities](skills/find-product-opportunities/SKILL.md) | 有证据的 1–3 个候选与主推荐、待验证或 NO-GO |
-| 新站刚上线，哪里最值得检查 | [post-launch](skills/post-launch/SKILL.md) | 关键访问/转化、索引、测量与专项修复结果 |
-| 网站慢、交互卡、布局跳动 | [performance](skills/performance/SKILL.md) | 与症状匹配的测量、原因、修改和复测 |
-| 下一批搜索页面做什么、为什么掉流量 | [seo-research](skills/seo-research/SKILL.md) | 有证据的页面/修复优先队列 |
-| 验证站点、提交 sitemap、检查索引 | [search-console](skills/search-console/SKILL.md) | 指定引擎的验证/提交/处理状态 |
-| 找相关引用、外链渠道和 referral | [link-ops](skills/link-ops/SKILL.md) | 来源核实、机会队列、草稿与复盘 |
-| 哪些营销投入带来结果 | [attribution](skills/attribution/SKILL.md) | 数据口径、归因限制和验证方案 |
-| 找匹配的潜客及可验证的切入点 | [prospecting](skills/prospecting/SKILL.md) | 目标客户研究、需求信号和优先队列 |
-| 定期复盘已运行的营销渠道 | [marketing-loops](skills/marketing-loops/SKILL.md) | 检查条件、状态去重、停止条件及适当节奏 |
+| 发现机会 | 接下来做什么产品 | [find-product-opportunities](skills/find-product-opportunities/SKILL.md)：有证据的 1–3 个候选与主推荐、待验证或 NO-GO |
+| 验证需求 | 已有想法是否值得投入 | [validate-product-idea](skills/validate-product-idea/SKILL.md)：关键假设、证据与反证、最小判别实验和投入建议 |
+| 确定首版 | 选择产品形态、裁剪 MVP | [validate-product-idea](skills/validate-product-idea/SKILL.md)：按任务与约束选择形态，确定首版闭环与暂缓范围 |
+| 定位与定价 | 为谁服务、如何表达价值、如何收费 | [product-marketing](skills/product-marketing/SKILL.md)、[pricing](skills/pricing/SKILL.md) |
+| 发布与分发 | 产品如何发布，第一批用户从哪里来 | [launch](skills/launch/SKILL.md)、[marketing-ideas](skills/marketing-ideas/SKILL.md)、[prospecting](skills/prospecting/SKILL.md) |
+| 获客与转化 | 选择渠道、优化内容与购买路径 | [内容与获客技能](docs/skill-catalog.md#内容与获客)、[转化与留存技能](docs/skill-catalog.md#转化与留存) |
+| 留存与复盘 | 用户是否获得价值，下一轮投入什么 | [onboarding](skills/onboarding/SKILL.md)、[churn-prevention](skills/churn-prevention/SKILL.md)、[attribution](skills/attribution/SKILL.md)、[marketing-loops](skills/marketing-loops/SKILL.md) |
 
-流程可从任何一项开始。上线检查按风险推进；机会发现按证据收敛。已有明确产品时直接做该产品的验证或增长工作。
+流程可从任何一项开始。已有明确产品时直接处理该产品的问题；无需重新寻找机会或先填完整简报。全部技能及适用范围见 [技能目录](docs/skill-catalog.md)。
 
-## 营销工具箱
+## 平台专项
 
-选用 [Corey Haines 的 marketingskills](https://github.com/coreyhaines31/marketingskills)，当前快照 **2.13.9**，固定提交与文件摘要见 [上游锁定记录](vendor/marketing.lock.json)。按需加载上游内容；已记录的兼容补丁修复失效的本地引用。
+| 对象 | 任务 | 技能 |
+|---|---|---|
+| 网站 / Web 应用 | 上线后检查访问、转化、索引与测量 | [web-post-launch](skills/web-post-launch/SKILL.md) |
+| 网站 / Web 应用 | 诊断加载、交互与布局性能 | [web-performance](skills/web-performance/SKILL.md) |
+| 网站 / 产品官网 | 搜索机会、抓取索引与结构化数据 | [seo-research](skills/seo-research/SKILL.md)、[seo-audit](skills/seo-audit/SKILL.md)、[search-console](skills/search-console/SKILL.md)、[schema](skills/schema/SKILL.md) |
+| App Store / Google Play | 商店页面的发现与下载转化 | [aso](skills/aso/SKILL.md) |
 
-| 任务 | 技能 |
-|---|---|
-| 搜索与网站结构 | seo-audit、ai-seo、programmatic-seo、site-architecture、schema、aso |
-| 转化与留存 | cro、signup、onboarding、popups、paywalls、churn-prevention |
-| 内容与创意 | content-strategy、copywriting、copy-editing、emails、social、image、video |
-| 广告与测量 | ads、ad-creative、analytics、attribution、ab-testing |
-| 分发与增长 | referrals、free-tools、co-marketing、community-marketing、directory-submissions、marketing-loops |
-| 研究与销售 | customer-research、competitor-profiling、competitors、prospecting、cold-email、revops、sales-enablement、lead-magnets |
-| 定位与策略 | product-marketing、marketing-ideas、marketing-psychology、launch、pricing |
+移动应用、桌面软件和开发者工具也可使用用户研究、定位、定价、内容与分发方法；渠道、计费和测量需适配实际产品。上游部分方法以 SaaS 为例，不将注册、订阅、营销网站或搜索收录当作所有产品的前置条件。
 
-已有产品信息直接复用；需要建立长期定位文档时使用 `product-marketing`。上游方法中的比例、平台统计和案例结论需结合当前来源与实际业务判断。第三方工具、账号、付费数据和其他未包含的技能按需使用。
+本仓库重点覆盖产品判断与增长。框架编码、原生打包、签名、商店审核、自动更新等工程任务使用对应环境的能力；目前未提供这些任务的完整专项工作流。
 
 ## 工作方式
 
 - **按决策投入研究**：优先验证最可能改变选择的假设，不为凑候选或固定流程消耗时间。
 - **保留证据边界**：公开页面、趋势、工具估算、真实业务数据分别标注；主动查替代解释。
-- **先验证真实结果**：可访问与可转化、事件可测、性能瓶颈、提交状态各自验证。`llms.txt`、统一结构化数据和 PageSpeed 90 分均不作为通用上线门槛。
+- **验证适用的结果**：需求承诺、核心任务完成、获客、购买与留存分别取证；网站检查不能代替原生应用的安装与运行验证。
 - **授权范围内执行**：已授权工作直接完成。研究本身不授权发信、发布、注册或付费；自动化仅在用户要求持续执行时设置。
 - **默认对话交付**：按需保存研究与运营数据，私有文件不进入插件仓库。
 
-## 维护
+## 来源与维护
+
+营销能力选用 [Corey Haines 的 marketingskills](https://github.com/coreyhaines31/marketingskills)，当前快照 **2.13.9**。固定提交、文件摘要与兼容补丁记录在 [上游锁定记录](vendor/marketing.lock.json)。平台统计、接口规则和案例结论按任务核对当前来源；第三方账号、工具和未包含技能按需使用。
 
 ```text
-skills/                 本地技能与上游技能链接
-vendor/marketing/       选用的上游原文与许可证
-vendor/marketing.lock.json  固定来源、选用列表与 SHA-256
-scripts/                仓库校验工具
-tests/                  确定性回归测试
-docs/                   维护方法与升级依据
+skills/                    扁平的技能安装与发现入口
+vendor/marketing/          选用的上游原文与许可证
+vendor/marketing.lock.json 固定来源、选用列表与 SHA-256
+patches/                   上游兼容补丁
+scripts/                   仓库校验工具
+tests/                     确定性回归测试
+docs/                      技能导航、迁移与维护说明
 ```
 
-`.claude/skills`、`.agents/skills`、`.catpaw/skills` 指向 `skills/`，`CLAUDE.md` 指向 `AGENTS.md`。
+`.claude/skills`、`.agents/skills`、`.catpaw/skills` 指向 `skills/`，`CLAUDE.md` 指向 `AGENTS.md`。目录不按产品形态或生命周期拆分，跨阶段技能通过文档导航复用。
 
 - [维护与验证](docs/maintenance.md)
 - [2026-10 方法与上游审查](docs/review-2026-10.md)

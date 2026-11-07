@@ -46,20 +46,23 @@ def check_vendor(root: Path) -> list[str]:
 
 def check_references(root: Path) -> list[str]:
     issues = []
+    paths = [path for path in (root / "README.md", root / "AGENTS.md") if path.is_file()]
+    paths.extend((root / "docs").rglob("*.md"))
     for skill in sorted((root / "skills").iterdir()):
         if not (skill / "SKILL.md").is_file():
             issues.append(f"missing skill entrypoint: {skill.name}")
             continue
         if skill.is_symlink():
             continue  # Upstream templates may contain illustrative Markdown links.
-        for path in skill.rglob("*.md"):
-            text = path.read_text(encoding="utf-8")
-            for target in re.findall(r"\]\(([^\s)]+)\)", text):
-                if target.startswith(("https:", "http:", "#", "mailto:")):
-                    continue
-                target = unquote(target.split("#", 1)[0])
-                if not (path.parent / target).exists():
-                    issues.append(f"broken reference in {path.relative_to(root)}: {target}")
+        paths.extend(skill.rglob("*.md"))
+    for path in paths:
+        text = path.read_text(encoding="utf-8")
+        for target in re.findall(r"\]\(([^\s)]+)\)", text):
+            if target.startswith(("https:", "http:", "#", "mailto:")):
+                continue
+            target = unquote(target.split("#", 1)[0])
+            if not (path.parent / target).exists():
+                issues.append(f"broken reference in {path.relative_to(root).as_posix()}: {target}")
     return issues
 
 
@@ -68,9 +71,14 @@ def check_manifests(root: Path) -> list[str]:
     claude = json.loads((root / ".claude-plugin/plugin.json").read_text(encoding="utf-8"))
     codex = json.loads((root / ".codex-plugin/plugin.json").read_text(encoding="utf-8"))
     market = json.loads((root / ".claude-plugin/marketplace.json").read_text(encoding="utf-8"))
-    for field in ("name", "version", "skills"):
+    for field in ("name", "version", "skills", "repository", "homepage"):
         if claude[field] != codex[field]:
             issues.append(f"plugin manifests disagree on {field}")
+    if market["name"] != claude["name"]:
+        issues.append("marketplace identity differs from plugin")
+    entries = market["plugins"]
+    if len(entries) != 1 or entries[0]["name"] != claude["name"] or entries[0]["source"] != "./":
+        issues.append("marketplace must expose the local plugin under its current name")
     if market["metadata"]["version"] != claude["version"]:
         issues.append("marketplace version differs from plugin")
     for name in (".claude/skills", ".agents/skills", ".catpaw/skills", "CLAUDE.md"):
@@ -94,7 +102,7 @@ def run_check(command: list[str]) -> str | None:
 def check_plugin_bundle(root: Path, claude: str) -> list[str]:
     """Validate a disposable, dereferenced install tree; never edit canonical links."""
     issues = []
-    with tempfile.TemporaryDirectory(prefix="webmaster-plugin-") as temp:
+    with tempfile.TemporaryDirectory(prefix="indie-product-plugin-") as temp:
         bundle = Path(temp)
         shutil.copytree(root / "skills", bundle / "skills", symlinks=False)
         shutil.copytree(root / ".claude-plugin", bundle / ".claude-plugin")

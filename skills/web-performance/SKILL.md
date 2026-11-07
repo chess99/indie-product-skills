@@ -1,8 +1,8 @@
 ---
-name: performance
-description: 诊断和修复网站速度、Core Web Vitals、LCP、CLS、INP、TTFB 或 PageSpeed 问题。适用于性能排查和验证改动；完整 SEO 审计使用 seo-audit。
+name: web-performance
+description: 诊断和修复网页速度、Core Web Vitals、LCP、CLS、INP、TTFB 或 PageSpeed 问题。适用于网站与 Web 应用的性能排查和复测；原生应用启动、内存或桌面计算性能使用对应工程工具。
 metadata:
-  version: 2.0.0
+  version: 3.0.0
 ---
 
 # 网站性能
