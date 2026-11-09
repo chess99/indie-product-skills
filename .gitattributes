@@ -1,0 +1,2 @@
+# Preserve locked upstream bytes, including original line endings, on every OS.
+vendor/marketing/** -text

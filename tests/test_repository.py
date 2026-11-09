@@ -14,6 +14,34 @@ class RepositoryTests(unittest.TestCase):
     def test_packaged_resources_manifests_and_upstream_match(self):
         self.assertEqual(check_manifests(ROOT) + check_references(ROOT) + check_vendor(ROOT), [])
 
+    def test_git_checkout_preserves_locked_vendor_bytes_with_autocrlf(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            vendor = root / "vendor/marketing"
+            vendor.mkdir(parents=True)
+            files = {"LICENSE": b"Upstream license\n", "guide.md": b"# Upstream guide\r\n"}
+            for name, content in files.items():
+                (vendor / name).write_bytes(content)
+            lock = {
+                "commit": "a" * 40, "skills": [],
+                "files": {name: hashlib.sha256(content).hexdigest() for name, content in files.items()},
+            }
+            (root / "vendor/marketing.lock.json").write_text(json.dumps(lock), encoding="utf-8")
+            shutil.copyfile(ROOT / ".gitattributes", root / ".gitattributes")
+
+            def git(*args):
+                return subprocess.run(
+                    ["git", "-c", "core.autocrlf=true", "-c", "core.safecrlf=false", *args],
+                    cwd=root, check=True, capture_output=True,
+                )
+
+            git("init", "--quiet")
+            git("add", ".")
+            for name in files:
+                (vendor / name).unlink()
+            git("checkout-index", "--all", "--force")
+            self.assertEqual(check_vendor(root), [])
+
     def test_vendor_check_detects_edits_additions_and_removals(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

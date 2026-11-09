@@ -8,6 +8,8 @@
 
 兼容入口保持符号链接。Windows 检出前启用 `git config --global core.symlinks true`，并使用允许创建符号链接的环境；CI 已显式启用。
 
+`vendor/marketing/` 通过 `.gitattributes` 的 `-text` 保留上游原始字节，避免 Windows 的 `core.autocrlf=true` 转换换行符后触发 lock 摘要不匹配。已有检出若受影响，先确认该目录没有未提交修改，再运行 `git restore --worktree -- vendor/marketing` 重新检出；不要为换行符差异重算 lock。
+
 ## 验证层次
 
 ### 1. 确定性行为与资源
